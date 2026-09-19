@@ -2,8 +2,15 @@ name: Badminton Court Availability Check
 
 on:
   schedule:
-    - cron: '30 6 * * *'
-  workflow_dispatch: {}
+    - cron: '30 6 * * *'   # 12:00 PM IST - alert-only (emails only if <=2 courts left)
+    - cron: '30 7 * * *'   # 1:00 PM IST  - full availability report
+    - cron: '30 11 * * *'  # 5:00 PM IST  - full availability report
+  workflow_dispatch:
+    inputs:
+      mode:
+        description: "alert (only emails on low availability) or report (always emails)"
+        required: false
+        default: "report"
 
 permissions:
   contents: read
@@ -29,6 +36,7 @@ jobs:
 
       - name: Check court availability
         env:
+          MODE: ${{ github.event.schedule == '30 6 * * *' && 'alert' || (github.event.inputs.mode || 'report') }}
           GMAIL_ADDRESS: ${{ secrets.GMAIL_ADDRESS }}
           GMAIL_APP_PASSWORD: ${{ secrets.GMAIL_APP_PASSWORD }}
           NOTIFY_EMAIL: ${{ secrets.NOTIFY_EMAIL }}
