@@ -1,8 +1,9 @@
 # Badminton Court Checker
 
 Checks court availability at **Badmintonium Academy** (Doddathoguru,
-Electronic City) and emails you the results, using Playo's public booking
-API - no login or scraping needed.
+Electronic City), emails you the results, and publishes a **shareable live
+status page** - using Playo's public booking API, no login or scraping
+needed.
 
 ## Schedule (all times IST)
 
@@ -23,6 +24,20 @@ So on a normal Monday-Thursday, you get 3 emails/no-emails about that
 evening. On Friday, the same 3 checks also cover the upcoming weekend
 mornings. Saturday and Sunday themselves are quiet.
 
+## Shareable link
+
+Every run regenerates `docs/index.html` - a small mobile-friendly status
+page - and the workflow commits it back to the repo. Once GitHub Pages is
+turned on (one-time, see Setup below), that file is served at:
+
+```
+https://<your-github-username>.github.io/badminton-court-checker/
+```
+
+Anyone with that link (a friend included) sees the same live availability
+you get emailed, refreshed 3x a day automatically. No login needed to view
+it.
+
 ## How it works
 
 `check_availability.py` calls:
@@ -32,22 +47,28 @@ https://api.playo.io/booking-lab-public/availability/v1/<venueId>/SP5/<date>
 ```
 
 for each relevant date, counts how many of the 7 courts are free per hour,
-and either sends an alert (noon) or a full report (1 PM / 5 PM).
+writes `docs/index.html`, and either sends an alert (noon) or a full
+report email (1 PM / 5 PM).
 
 ## Setup
 
-This repo needs three GitHub Actions secrets (Settings -> Secrets and
-variables -> Actions -> New repository secret) - the same ones used by the
-`lichess-weekly-auto` bot:
+1. **Email secrets** - add three GitHub Actions secrets (Settings ->
+   Secrets and variables -> Actions -> New repository secret), the same
+   ones used by the `lichess-weekly-auto` bot:
 
-| Secret | Value |
-|---|---|
-| `GMAIL_ADDRESS` | The Gmail address to send from |
-| `GMAIL_APP_PASSWORD` | A Gmail App Password for that account |
-| `NOTIFY_EMAIL` | Where alerts/reports are sent (defaults to `GMAIL_ADDRESS` if unset) |
+   | Secret | Value |
+   |---|---|
+   | `GMAIL_ADDRESS` | The Gmail address to send from |
+   | `GMAIL_APP_PASSWORD` | A Gmail App Password for that account |
+   | `NOTIFY_EMAIL` | Where alerts/reports are sent (defaults to `GMAIL_ADDRESS` if unset) |
 
-Without these secrets the workflow still runs and logs availability, it
-just skips sending email.
+   Without these secrets the workflow still runs, updates the page, and
+   logs availability - it just skips sending email.
+
+2. **GitHub Pages** (for the shareable link) - go to Settings -> Pages ->
+   under "Build and deployment", set Source to "Deploy from a branch",
+   Branch to `main` and folder to `/docs`, then Save. The link goes live
+   within a minute or two, and every future run keeps it updated.
 
 You can also trigger a run manually from the Actions tab ("Run workflow"),
 choosing `alert` or `report` mode.

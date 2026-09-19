@@ -20,6 +20,7 @@ NOTIFY_EMAIL = os.getenv("NOTIFY_EMAIL", "").strip() or GMAIL_ADDRESS
 MODE = os.getenv("MODE", "report").strip().lower()  # "alert" (noon) or "report" (1pm/5pm)
 
 IST = timezone(timedelta(hours=5, minutes=30))
+PAGE_PATH = os.path.join(os.path.dirname(__file__), "docs", "index.html")
 
 
 def send_email(subject, body):
@@ -66,61 +67,174 @@ def hourly_availability(date_str, hours):
     return hourly, total
 
 
-def build_group(label, date_str, hours):
-    """Fetch + format one date's availability. Returns (section_text, low_hours, total_courts)."""
+def build_group(label, date_label, date_str, hours):
+    """Fetch one date's availability. Returns a dict describing the group."""
     hourly, total = hourly_availability(date_str, hours)
-    lines = [
-        f"  {fmt_hour(h)} - {fmt_hour(h + 1)}: {hourly[h]} of {total} courts free"
-        for h in hours
-    ]
-    section = f"{label}:\n" + "\n".join(lines)
     low = {h: n for h, n in hourly.items() if n <= ALERT_THRESHOLD}
-    return section, low, total
+    return {
+        "label": label,
+        "date_label": date_label,
+        "date_str": date_str,
+        "hourly": hourly,
+        "total": total,
+        "low": low,
+    }
+
+
+def group_text(group):
+    lines = [
+        f"  {fmt_hour(h)} - {fmt_hour(h + 1)}: {n} of {group['total']} courts free"
+        for h, n in group["hourly"].items()
+    ]
+    return f"{group['label']}:\n" + "\n".join(lines)
+
+
+def collect_groups(now):
+    """Build the list of availability groups to check for the given IST 'now'."""
+    weekday = now.weekday()  # Monday = 0 ... Sunday = 6
+    if weekday >= 5:  # Saturday / Sunday - nothing runs on the weekend itself
+        return []
+
+    groups = []
+    today_label = f"Today ({now.strftime('%A, %d %b')})"
+    groups.append(build_group(
+        today_label, now.strftime("%A, %d %b %Y"), now.strftime("%Y-%m-%d"), WEEKDAY_HOURS
+    ))
+
+    if weekday == 4:  # Friday - also look ahead to the weekend mornings
+        for offset, day_name in ((1, "Saturday"), (2, "Sunday")):
+            d = now + timedelta(days=offset)
+            label = f"{day_name} ({d.strftime('%d %b')})"
+            groups.append(build_group(
+                label, d.strftime("%A, %d %b %Y"), d.strftime("%Y-%m-%d"), WEEKEND_HOURS
+            ))
+
+    return groups
+
+
+def render_html(groups, now, mode):
+    def status_class(n, total):
+        if n <= ALERT_THRESHOLD:
+            return "low"
+        if n <= total // 2:
+            return "mid"
+        return "ok"
+
+    if groups:
+        cards = []
+        for g in groups:
+            rows = "".join(
+                f'<tr class="{status_class(n, g["total"])}">'
+                f'<td>{fmt_hour(h)} - {fmt_hour(h + 1)}</td>'
+                f'<td>{n} of {g["total"]} free</td>'
+                f"</tr>"
+                for h, n in g["hourly"].items()
+            )
+            cards.append(
+                f'<section class="card"><h2>{g["label"]}</h2>'
+                f"<table>{rows}</table></section>"
+            )
+        body_html = "\n".join(cards)
+    else:
+        body_html = (
+            '<section class="card"><p class="quiet">No check runs on weekends - '
+            "Saturday and Sunday morning availability is shown here from Friday's "
+            "check. Next update: Monday evening.</p></section>"
+        )
+
+    updated = now.strftime("%A, %d %b %Y - %I:%M %p").replace(" 0", " ") + " IST"
+
+    return f"""<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Badmintonium Court Availability</title>
+<style>
+  :root {{ color-scheme: light dark; }}
+  body {{
+    font-family: -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+    max-width: 480px; margin: 0 auto; padding: 24px 16px 48px;
+    background: #f7f7f8; color: #1a1a1a;
+  }}
+  h1 {{ font-size: 1.25rem; margin-bottom: 4px; }}
+  .subtitle {{ color: #666; font-size: 0.9rem; margin-bottom: 20px; }}
+  .card {{
+    background: #fff; border-radius: 12px; padding: 16px 18px;
+    margin-bottom: 16px; box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+  }}
+  .card h2 {{ font-size: 1rem; margin: 0 0 10px; }}
+  table {{ width: 100%; border-collapse: collapse; font-size: 0.95rem; }}
+  td {{ padding: 8px 0; border-top: 1px solid #eee; }}
+  td:last-child {{ text-align: right; font-weight: 600; }}
+  tr:first-child td {{ border-top: none; }}
+  tr.ok td:last-child {{ color: #1a7f37; }}
+  tr.mid td:last-child {{ color: #b35900; }}
+  tr.low td:last-child {{ color: #c62828; }}
+  .quiet {{ color: #666; font-size: 0.9rem; margin: 0; }}
+  .book {{
+    display: block; text-align: center; background: #1a7f37; color: #fff;
+    text-decoration: none; padding: 12px; border-radius: 10px;
+    font-weight: 600; margin: 20px 0;
+  }}
+  footer {{ color: #999; font-size: 0.8rem; text-align: center; }}
+  @media (prefers-color-scheme: dark) {{
+    body {{ background: #17181a; color: #eee; }}
+    .card {{ background: #232427; box-shadow: none; }}
+    td {{ border-top-color: #333; }}
+    .subtitle, footer, .quiet {{ color: #999; }}
+  }}
+</style>
+</head>
+<body>
+  <h1>Badmintonium Academy</h1>
+  <div class="subtitle">Doddathoguru, Electronic City - court availability</div>
+  {body_html}
+  <a class="book" href="{BOOKING_URL}">Book on Playo</a>
+  <footer>
+    Last updated {updated} ({mode} check)<br>
+    Auto-refreshed 3x daily via GitHub Actions
+  </footer>
+</body>
+</html>
+"""
+
+
+def write_page(groups, now, mode):
+    os.makedirs(os.path.dirname(PAGE_PATH), exist_ok=True)
+    with open(PAGE_PATH, "w", encoding="utf-8") as f:
+        f.write(render_html(groups, now, mode))
+    print("Wrote", PAGE_PATH)
 
 
 def main():
     now = datetime.now(IST)
-    weekday = now.weekday()  # Monday = 0 ... Sunday = 6
+    groups = collect_groups(now)
 
-    if weekday >= 5:  # Saturday / Sunday - nothing runs on the weekend itself
+    if not groups:
         print(f"{now.strftime('%A')} - nothing scheduled "
-              f"(weekend availability is checked and mailed on Friday).")
+              f"(weekend availability is checked and mailed on Friday). "
+              f"Leaving the page as Friday left it.")
         return
 
-    sections = []
-    low_groups = []  # list of (date_label, low_hours_dict, total_courts)
-
-    # Today's weekday evening slots (every weekday, Mon-Fri)
-    today_str = now.strftime("%Y-%m-%d")
-    today_label = f"Today ({now.strftime('%A, %d %b')})"
-    section, low, total = build_group(today_label, today_str, WEEKDAY_HOURS)
-    sections.append(section)
-    if low:
-        low_groups.append((now.strftime("%A, %d %b %Y"), low, total))
-
-    # On Friday, also look ahead to the weekend mornings
-    if weekday == 4:  # Friday
-        for offset, day_name in ((1, "Saturday"), (2, "Sunday")):
-            d = now + timedelta(days=offset)
-            d_str = d.strftime("%Y-%m-%d")
-            label = f"{day_name} ({d.strftime('%d %b')})"
-            section, low, total = build_group(label, d_str, WEEKEND_HOURS)
-            sections.append(section)
-            if low:
-                low_groups.append((d.strftime("%A, %d %b %Y"), low, total))
+    write_page(groups, now, MODE)
 
     report_body = (
         f"Court availability at {VENUE_NAME}:\n\n"
-        + "\n\n".join(sections)
+        + "\n\n".join(group_text(g) for g in groups)
         + f"\n\nBook now: {BOOKING_URL}"
     )
     print(report_body)
 
+    low_groups = [
+        (g["date_label"], g["low"], g["total"]) for g in groups if g["low"]
+    ]
+
     if MODE == "alert":
         if low_groups:
             alert_lines = [
-                f"Only {n} of {total} courts left for {fmt_hour(h)}-{fmt_hour(h + 1)} on {date_label}."
-                for date_label, low, total in low_groups
+                f"Only {n} of {total} courts left for {fmt_hour(h)}-{fmt_hour(h + 1)} on {label}."
+                for label, low, total in low_groups
                 for h, n in low.items()
             ]
             subject = f"[Court Alert] Low availability at {VENUE_NAME}"
