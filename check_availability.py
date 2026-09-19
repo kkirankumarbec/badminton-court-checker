@@ -90,24 +90,28 @@ def group_text(group):
 
 
 def collect_groups(now):
-    """Build the list of availability groups to check for the given IST 'now'."""
+    """Build the list of availability groups to check for the given IST 'now'.
+
+    Weekdays (Mon-Fri) check that same day's evening slots. Weekend mornings
+    are checked one day ahead - since weekend courts fill up much earlier -
+    so Friday covers Saturday, and Saturday covers Sunday. Sunday itself is
+    quiet: Monday is a weekday and gets checked same-day as usual.
+    """
     weekday = now.weekday()  # Monday = 0 ... Sunday = 6
-    if weekday >= 5:  # Saturday / Sunday - nothing runs on the weekend itself
-        return []
-
     groups = []
-    today_label = f"Today ({now.strftime('%A, %d %b')})"
-    groups.append(build_group(
-        today_label, now.strftime("%A, %d %b %Y"), now.strftime("%Y-%m-%d"), WEEKDAY_HOURS
-    ))
 
-    if weekday == 4:  # Friday - also look ahead to the weekend mornings
-        for offset, day_name in ((1, "Saturday"), (2, "Sunday")):
-            d = now + timedelta(days=offset)
-            label = f"{day_name} ({d.strftime('%d %b')})"
-            groups.append(build_group(
-                label, d.strftime("%A, %d %b %Y"), d.strftime("%Y-%m-%d"), WEEKEND_HOURS
-            ))
+    if weekday <= 4:  # Monday-Friday: today's own evening slots
+        today_label = f"Today ({now.strftime('%A, %d %b')})"
+        groups.append(build_group(
+            today_label, now.strftime("%A, %d %b %Y"), now.strftime("%Y-%m-%d"), WEEKDAY_HOURS
+        ))
+
+    if weekday in (4, 5):  # Friday & Saturday: one day ahead to the next weekend morning
+        d = now + timedelta(days=1)
+        label = f"{d.strftime('%A')} ({d.strftime('%d %b')})"
+        groups.append(build_group(
+            label, d.strftime("%A, %d %b %Y"), d.strftime("%Y-%m-%d"), WEEKEND_HOURS
+        ))
 
     return groups
 
@@ -137,8 +141,8 @@ def render_html(groups, now, mode):
         body_html = "\n".join(cards)
     else:
         body_html = (
-            '<section class="card"><p class="quiet">No check runs on weekends - '
-            "Saturday and Sunday morning availability is shown here from Friday's "
+            '<section class="card"><p class="quiet">No check runs on Sunday - '
+            "Sunday morning's availability was already shown here from Saturday's "
             "check. Next update: Monday evening.</p></section>"
         )
 
@@ -213,8 +217,8 @@ def main():
 
     if not groups:
         print(f"{now.strftime('%A')} - nothing scheduled "
-              f"(weekend availability is checked and mailed on Friday). "
-              f"Leaving the page as Friday left it.")
+              f"(Sunday's availability was already checked and mailed on Saturday). "
+              f"Leaving the page as Saturday left it.")
         return
 
     write_page(groups, now, MODE)

@@ -13,16 +13,20 @@ needed.
 | 1:00 PM | Report | Always emails the current availability |
 | 5:00 PM | Report | Always emails the current availability |
 
-**Which slots get checked depends on the day:**
+**Which slots get checked depends on the day** - weekend courts fill up
+much earlier, so each weekend day's status is checked **one day ahead**:
 
 - **Monday - Friday**: that same day's **7 PM, 8 PM, and 9 PM** slots.
-- **Saturday & Sunday**: nothing runs on the weekend days themselves.
-  Instead, **Friday's** run also looks ahead and includes **Saturday's and
-  Sunday's 8 AM and 9 AM** slots in the same email.
+- **Friday** additionally looks one day ahead and includes **Saturday's**
+  8 AM and 9 AM slots in the same email.
+- **Saturday** looks one day ahead and includes **Sunday's** 8 AM and 9 AM
+  slots (no check of Saturday itself - it isn't a play day).
+- **Sunday** is quiet - Monday is a weekday and gets checked same-day as
+  usual, so there's nothing to look ahead to.
 
-So on a normal Monday-Thursday, you get 3 emails/no-emails about that
-evening. On Friday, the same 3 checks also cover the upcoming weekend
-mornings. Saturday and Sunday themselves are quiet.
+So Monday-Thursday you get 3 emails/no-emails about that evening. Friday's
+3 checks also cover Saturday morning, and Saturday's 3 checks cover Sunday
+morning. Sunday itself sends nothing.
 
 ## Shareable link
 
