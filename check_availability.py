@@ -1,3 +1,4 @@
+import json
 import os
 import smtplib
 from email.mime.text import MIMEText
@@ -10,17 +11,19 @@ VENUE_NAME = "Badmintonium Academy, Doddathoguru, Electronic City"
 SPORT_ID = "SP5"  # Badminton
 BOOKING_URL = f"https://playo.co/booking?venueId={VENUE_ID}"
 
-WEEKDAY_HOURS = [19, 20, 21]  # 7 PM, 8 PM, 9 PM slots - checked same day, Mon-Fri
-WEEKEND_HOURS = [8, 9]        # 8 AM, 9 AM slots - checked ahead of time, only on Friday
+WEEKDAY_HOURS = [19, 20, 21]  # 7 PM, 8 PM, 9 PM slots - shown for Mon-Fri
+WEEKEND_HOURS = [8, 9]        # 8 AM, 9 AM slots - shown for Sat/Sun
+DAYS_AHEAD = 3                # show today + the next 2 days
 ALERT_THRESHOLD = 2           # courts remaining that triggers an alert
 
 GMAIL_ADDRESS = os.getenv("GMAIL_ADDRESS", "").strip()
 GMAIL_APP_PASSWORD = os.getenv("GMAIL_APP_PASSWORD", "").strip()
 NOTIFY_EMAIL = os.getenv("NOTIFY_EMAIL", "").strip() or GMAIL_ADDRESS
-MODE = os.getenv("MODE", "report").strip().lower()  # "alert" (noon) or "report" (1pm/5pm)
 
 IST = timezone(timedelta(hours=5, minutes=30))
-PAGE_PATH = os.path.join(os.path.dirname(__file__), "docs", "index.html")
+BASE_DIR = os.path.dirname(__file__)
+PAGE_PATH = os.path.join(BASE_DIR, "docs", "index.html")
+STATE_PATH = os.path.join(BASE_DIR, "alert_state.json")
 
 
 def send_email(subject, body):
@@ -89,34 +92,72 @@ def group_text(group):
     return f"{group['label']}:\n" + "\n".join(lines)
 
 
+def day_label(now, d, offset):
+    if offset == 0:
+        return f"Today ({d.strftime('%A, %d %b')})"
+    if offset == 1:
+        return f"Tomorrow ({d.strftime('%A, %d %b')})"
+    return f"{d.strftime('%A')} ({d.strftime('%d %b')})"
+
+
 def collect_groups(now):
-    """Build the list of availability groups to check for the given IST 'now'.
+    """Build availability groups for today and the next DAYS_AHEAD-1 days.
 
-    Weekdays (Mon-Fri) check that same day's evening slots. Weekend mornings
-    are checked one day ahead - since weekend courts fill up much earlier -
-    so Friday covers Saturday, and Saturday covers Sunday. Sunday itself is
-    quiet: Monday is a weekday and gets checked same-day as usual.
+    Each day shows whichever hours are relevant to it: evening slots
+    (7-10 PM) for a weekday, morning slots (8-10 AM) for a weekend day.
     """
-    weekday = now.weekday()  # Monday = 0 ... Sunday = 6
     groups = []
-
-    if weekday <= 4:  # Monday-Friday: today's own evening slots
-        today_label = f"Today ({now.strftime('%A, %d %b')})"
+    for offset in range(DAYS_AHEAD):
+        d = now + timedelta(days=offset)
+        hours = WEEKDAY_HOURS if d.weekday() <= 4 else WEEKEND_HOURS
         groups.append(build_group(
-            today_label, now.strftime("%A, %d %b %Y"), now.strftime("%Y-%m-%d"), WEEKDAY_HOURS
+            day_label(now, d, offset),
+            d.strftime("%A, %d %b %Y"),
+            d.strftime("%Y-%m-%d"),
+            hours,
         ))
-
-    if weekday in (4, 5):  # Friday & Saturday: one day ahead to the next weekend morning
-        d = now + timedelta(days=1)
-        label = f"{d.strftime('%A')} ({d.strftime('%d %b')})"
-        groups.append(build_group(
-            label, d.strftime("%A, %d %b %Y"), d.strftime("%Y-%m-%d"), WEEKEND_HOURS
-        ))
-
     return groups
 
 
-def render_html(groups, now, mode):
+def load_state():
+    try:
+        with open(STATE_PATH) as f:
+            return json.load(f)
+    except (FileNotFoundError, ValueError):
+        return {}
+
+
+def save_state(state):
+    with open(STATE_PATH, "w") as f:
+        json.dump(state, f, indent=2, sort_keys=True)
+
+
+def newly_low_slots(groups, state, today_str):
+    """Diff each group's low slots against the saved state.
+
+    Returns the list of (date_label, hour, available, total) entries that
+    just crossed into "low" since the last run, and mutates `state` in
+    place: a slot is remembered while it stays low, and forgotten (so it
+    can alert again later) once it recovers above the threshold. Stale
+    entries for past dates are dropped.
+    """
+    state = {k: v for k, v in state.items() if k.split("|", 1)[0] >= today_str}
+    newly_low = []
+
+    for g in groups:
+        for h, n in g["hourly"].items():
+            key = f"{g['date_str']}|{h}"
+            if n <= ALERT_THRESHOLD:
+                if key not in state:
+                    newly_low.append((g["date_label"], h, n, g["total"]))
+                state[key] = True
+            else:
+                state.pop(key, None)
+
+    return newly_low, state
+
+
+def render_html(groups, now):
     def status_class(n, total):
         if n <= ALERT_THRESHOLD:
             return "low"
@@ -124,27 +165,20 @@ def render_html(groups, now, mode):
             return "mid"
         return "ok"
 
-    if groups:
-        cards = []
-        for g in groups:
-            rows = "".join(
-                f'<tr class="{status_class(n, g["total"])}">'
-                f'<td>{fmt_hour(h)} - {fmt_hour(h + 1)}</td>'
-                f'<td>{n} of {g["total"]} free</td>'
-                f"</tr>"
-                for h, n in g["hourly"].items()
-            )
-            cards.append(
-                f'<section class="card"><h2>{g["label"]}</h2>'
-                f"<table>{rows}</table></section>"
-            )
-        body_html = "\n".join(cards)
-    else:
-        body_html = (
-            '<section class="card"><p class="quiet">No check runs on Sunday - '
-            "Sunday morning's availability was already shown here from Saturday's "
-            "check. Next update: Monday evening.</p></section>"
+    cards = []
+    for g in groups:
+        rows = "".join(
+            f'<tr class="{status_class(n, g["total"])}">'
+            f'<td>{fmt_hour(h)} - {fmt_hour(h + 1)}</td>'
+            f'<td>{n} of {g["total"]} free</td>'
+            f"</tr>"
+            for h, n in g["hourly"].items()
         )
+        cards.append(
+            f'<section class="card"><h2>{g["label"]}</h2>'
+            f"<table>{rows}</table></section>"
+        )
+    body_html = "\n".join(cards)
 
     updated = now.strftime("%A, %d %b %Y - %I:%M %p").replace(" 0", " ") + " IST"
 
@@ -175,7 +209,6 @@ def render_html(groups, now, mode):
   tr.ok td:last-child {{ color: #1a7f37; }}
   tr.mid td:last-child {{ color: #b35900; }}
   tr.low td:last-child {{ color: #c62828; }}
-  .quiet {{ color: #666; font-size: 0.9rem; margin: 0; }}
   .book {{
     display: block; text-align: center; background: #1a7f37; color: #fff;
     text-decoration: none; padding: 12px; border-radius: 10px;
@@ -186,7 +219,7 @@ def render_html(groups, now, mode):
     body {{ background: #17181a; color: #eee; }}
     .card {{ background: #232427; box-shadow: none; }}
     td {{ border-top-color: #333; }}
-    .subtitle, footer, .quiet {{ color: #999; }}
+    .subtitle, footer {{ color: #999; }}
   }}
 </style>
 </head>
@@ -196,18 +229,18 @@ def render_html(groups, now, mode):
   {body_html}
   <a class="book" href="{BOOKING_URL}">Book on Playo</a>
   <footer>
-    Last updated {updated} ({mode} check)<br>
-    Auto-refreshed 3x daily via GitHub Actions
+    Last updated {updated}<br>
+    Live - refreshes every 15 minutes via GitHub Actions
   </footer>
 </body>
 </html>
 """
 
 
-def write_page(groups, now, mode):
+def write_page(groups, now):
     os.makedirs(os.path.dirname(PAGE_PATH), exist_ok=True)
     with open(PAGE_PATH, "w", encoding="utf-8") as f:
-        f.write(render_html(groups, now, mode))
+        f.write(render_html(groups, now))
     print("Wrote", PAGE_PATH)
 
 
@@ -215,13 +248,7 @@ def main():
     now = datetime.now(IST)
     groups = collect_groups(now)
 
-    if not groups:
-        print(f"{now.strftime('%A')} - nothing scheduled "
-              f"(Sunday's availability was already checked and mailed on Saturday). "
-              f"Leaving the page as Saturday left it.")
-        return
-
-    write_page(groups, now, MODE)
+    write_page(groups, now)
 
     report_body = (
         f"Court availability at {VENUE_NAME}:\n\n"
@@ -230,25 +257,20 @@ def main():
     )
     print(report_body)
 
-    low_groups = [
-        (g["date_label"], g["low"], g["total"]) for g in groups if g["low"]
-    ]
+    state = load_state()
+    newly_low, state = newly_low_slots(groups, state, now.strftime("%Y-%m-%d"))
+    save_state(state)
 
-    if MODE == "alert":
-        if low_groups:
-            alert_lines = [
-                f"Only {n} of {total} courts left for {fmt_hour(h)}-{fmt_hour(h + 1)} on {label}."
-                for label, low, total in low_groups
-                for h, n in low.items()
-            ]
-            subject = f"[Court Alert] Low availability at {VENUE_NAME}"
-            body = "\n".join(alert_lines) + f"\n\nBook now: {BOOKING_URL}"
-            send_email(subject, body)
-        else:
-            print("Availability above alert threshold - no alert email sent.")
+    if newly_low:
+        lines = [
+            f"Only {n} of {total} courts left for {fmt_hour(h)}-{fmt_hour(h + 1)} on {label}."
+            for label, h, n, total in newly_low
+        ]
+        subject = f"[Court Alert] Low availability at {VENUE_NAME}"
+        body = "\n".join(lines) + f"\n\nBook now: {BOOKING_URL}"
+        send_email(subject, body)
     else:
-        subject = f"Badmintonium Court Availability - {now.strftime('%a, %d %b %Y')}"
-        send_email(subject, report_body)
+        print("No newly-low slots - no alert email sent.")
 
 
 def send_failure_alert(message):
