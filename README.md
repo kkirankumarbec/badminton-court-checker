@@ -68,6 +68,40 @@ control.
 Edit that file directly in the repo to add or remove people; it isn't
 touched by the automated workflow, so your edits stick.
 
+## Tracking who owes what (running ledger)
+
+The page also links to a **Google Sheet** ("Who owes what") that tracks
+outstanding balances across sessions - unlike the split calculator above,
+this one remembers, so an unpaid amount carries forward until it's settled,
+however many days that takes. Three of you book on rotation, so this is a
+shared Sheet, not another static page.
+
+It has four sections in one tab:
+
+- **ROSTER** - player names (grows independently of `players.json`).
+- **BOOKINGS** - one row per day you book: Date, Total, Paid By. The
+  Num Players and Share columns fill in automatically.
+- **PARTICIPANTS** - one row per person per booking (add rows for
+  everyone who played that date). Their share is auto-filled - 0 for
+  whoever is listed as "Paid By" that day, since paying the venue already
+  covers their own share.
+- **PAYMENTS** - one row per payment someone makes to settle up.
+- **BALANCES** - fully automatic, don't type into it: Total Owed minus
+  Total Paid per person, running forever until you log a payment against
+  them.
+
+To use it day to day: after a booking, add one Bookings row and one
+Participants row per player who showed up. When someone pays, add one
+Payments row. That's it - Balances updates itself. Running low on
+pre-filled rows (it ships with ~6 weeks of headroom) just means selecting
+the last formula row in a section and copy-pasting it down as many rows as
+you need - Sheets adjusts the relative references automatically.
+
+**Sharing it**: the Sheet is private to whoever created it by default.
+Share it (Sheets' own Share button, "Editor" access) with the other two
+people who book, so all three can log bookings and payments without
+routing through you.
+
 ## How it works
 
 `check_availability.py` calls:
