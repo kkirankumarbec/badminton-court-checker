@@ -212,7 +212,12 @@ def render_html(groups, now):
   .book {{
     display: block; text-align: center; background: #1a7f37; color: #fff;
     text-decoration: none; padding: 12px; border-radius: 10px;
-    font-weight: 600; margin: 20px 0;
+    font-weight: 600; margin: 20px 0 10px;
+  }}
+  .split {{
+    display: block; text-align: center; background: #fff; color: #1a7f37;
+    text-decoration: none; padding: 12px; border-radius: 10px;
+    font-weight: 600; margin: 0 0 20px; border: 1px solid #1a7f37;
   }}
   footer {{ color: #999; font-size: 0.8rem; text-align: center; }}
   @media (prefers-color-scheme: dark) {{
@@ -220,6 +225,7 @@ def render_html(groups, now):
     .card {{ background: #232427; box-shadow: none; }}
     td {{ border-top-color: #333; }}
     .subtitle, footer {{ color: #999; }}
+    .split {{ background: #232427; }}
   }}
 </style>
 </head>
@@ -228,6 +234,7 @@ def render_html(groups, now):
   <div class="subtitle">Doddathoguru, Electronic City - court availability</div>
   {body_html}
   <a class="book" href="{BOOKING_URL}">Book on Playo</a>
+  <a class="split" href="split.html">Split court cost</a>
   <footer>
     Last updated {updated}<br>
     Live - refreshes every 15 minutes via GitHub Actions

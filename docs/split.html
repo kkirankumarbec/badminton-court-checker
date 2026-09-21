@@ -1,0 +1,196 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Split Court Cost</title>
+<style>
+  :root { color-scheme: light dark; }
+  body {
+    font-family: -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+    max-width: 480px; margin: 0 auto; padding: 24px 16px 48px;
+    background: #f7f7f8; color: #1a1a1a;
+  }
+  a.back { color: #1a7f37; text-decoration: none; font-size: 0.9rem; display: inline-block; margin-bottom: 12px; }
+  h1 { font-size: 1.25rem; margin-bottom: 4px; }
+  .subtitle { color: #666; font-size: 0.9rem; margin-bottom: 20px; }
+  .card {
+    background: #fff; border-radius: 12px; padding: 16px 18px;
+    margin-bottom: 16px; box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+  }
+  .card h2 { font-size: 1rem; margin: 0 0 12px; }
+  label { display: block; font-size: 0.85rem; color: #555; margin: 14px 0 6px; }
+  label:first-child { margin-top: 0; }
+  input[type="text"], input[type="number"] {
+    width: 100%; box-sizing: border-box; padding: 10px 12px; font-size: 1rem;
+    border: 1px solid #ddd; border-radius: 8px; background: #fff; color: #1a1a1a;
+  }
+  .players { display: flex; flex-direction: column; gap: 8px; margin-top: 6px; }
+  .player-check { display: flex; align-items: center; gap: 10px; font-size: 0.95rem; }
+  .player-check input { width: 18px; height: 18px; }
+  .btn {
+    display: block; width: 100%; text-align: center; background: #1a7f37; color: #fff;
+    text-decoration: none; padding: 12px; border-radius: 10px; font-weight: 600;
+    border: none; font-size: 1rem; margin-top: 18px; cursor: pointer;
+  }
+  .btn.secondary { background: #eee; color: #1a1a1a; }
+  .btn:disabled { opacity: 0.5; cursor: not-allowed; }
+  .result-row {
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 10px 0; border-top: 1px solid #eee;
+  }
+  .result-row:first-child { border-top: none; }
+  .result-row .amt { font-weight: 600; }
+  .result-row .wa {
+    font-size: 0.85rem; color: #1a7f37; text-decoration: none; font-weight: 600;
+    border: 1px solid #1a7f37; border-radius: 8px; padding: 6px 10px;
+  }
+  .empty { color: #888; font-size: 0.9rem; text-align: center; padding: 12px 0; }
+  textarea {
+    width: 100%; box-sizing: border-box; min-height: 120px; font-family: inherit;
+    font-size: 0.9rem; padding: 10px; border-radius: 8px; border: 1px solid #ddd;
+    background: #fafafa; color: #1a1a1a; margin-top: 10px;
+  }
+  .hint { color: #999; font-size: 0.8rem; margin-top: 6px; }
+  @media (prefers-color-scheme: dark) {
+    body { background: #17181a; color: #eee; }
+    .card { background: #232427; box-shadow: none; }
+    .subtitle, .hint { color: #999; }
+    label { color: #aaa; }
+    input[type="text"], input[type="number"], textarea {
+      background: #1c1d1f; color: #eee; border-color: #3a3a3a;
+    }
+    .btn.secondary { background: #333; color: #eee; }
+    .result-row { border-top-color: #333; }
+    .empty { color: #777; }
+  }
+</style>
+</head>
+<body>
+  <a class="back" href="./">&larr; Back to availability</a>
+  <h1>Split Court Cost</h1>
+  <div class="subtitle">Badmintonium Academy - work out and send everyone's share</div>
+
+  <div class="card">
+    <h2>Session details</h2>
+    <label for="amount">Total amount (&#8377;)</label>
+    <input type="number" id="amount" min="0" step="0.01" placeholder="e.g. 1400">
+
+    <label for="upi">Payee UPI ID (whoever paid upfront)</label>
+    <input type="text" id="upi" placeholder="e.g. yourname@okhdfcbank">
+
+    <label for="note">Note (optional)</label>
+    <input type="text" id="note" placeholder="Badminton court">
+
+    <label>Who's splitting this?</label>
+    <div class="players" id="players"><div class="empty">Loading roster...</div></div>
+
+    <button class="btn" id="calc" disabled>Calculate split</button>
+  </div>
+
+  <div class="card" id="resultsCard" hidden>
+    <h2>Each person's share</h2>
+    <div id="results"></div>
+  </div>
+
+  <div class="card" id="summaryCard" hidden>
+    <h2>Copy for the group chat</h2>
+    <textarea id="summary" readonly></textarea>
+    <button class="btn secondary" id="copySummary">Copy summary</button>
+    <div class="hint">Paste this straight into the group's WhatsApp - individual reminders above are 1:1 only, WhatsApp doesn't allow linking directly into a group.</div>
+  </div>
+
+  <script>
+    let roster = [];
+
+    fetch('players.json')
+      .then(r => r.json())
+      .then(data => {
+        roster = data;
+        renderPlayers();
+      })
+      .catch(() => {
+        document.getElementById('players').innerHTML =
+          '<div class="empty">Could not load players.json</div>';
+      });
+
+    function renderPlayers() {
+      const el = document.getElementById('players');
+      if (!roster.length) {
+        el.innerHTML = '<div class="empty">No players in roster yet - edit docs/players.json</div>';
+        return;
+      }
+      el.innerHTML = roster.map((p, i) => `
+        <label class="player-check">
+          <input type="checkbox" value="${i}" checked>
+          ${escapeHtml(p.name)}
+        </label>
+      `).join('');
+      document.getElementById('calc').disabled = false;
+    }
+
+    function escapeHtml(s) {
+      return s.replace(/[&<>"']/g, c => ({
+        '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
+      }[c]));
+    }
+
+    function fmt(n) {
+      return n.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    }
+
+    document.getElementById('calc').addEventListener('click', () => {
+      const amount = parseFloat(document.getElementById('amount').value);
+      const upi = document.getElementById('upi').value.trim();
+      const note = document.getElementById('note').value.trim() || 'Badminton court';
+      const checked = Array.from(document.querySelectorAll('.player-check input:checked'))
+        .map(cb => roster[parseInt(cb.value, 10)]);
+
+      if (!amount || amount <= 0) { alert('Enter a valid total amount.'); return; }
+      if (!upi || !upi.includes('@')) { alert('Enter a valid UPI ID (e.g. name@bank).'); return; }
+      if (!checked.length) { alert('Select at least one player.'); return; }
+
+      const count = checked.length;
+      const base = Math.floor((amount / count) * 100) / 100;
+      const shares = checked.map(() => base);
+      const remainder = Math.round((amount - base * count) * 100) / 100;
+      shares[shares.length - 1] = Math.round((shares[shares.length - 1] + remainder) * 100) / 100;
+
+      const resultsEl = document.getElementById('results');
+      resultsEl.innerHTML = checked.map((p, i) => {
+        const share = shares[i];
+        const upiLink = `upi://pay?pa=${encodeURIComponent(upi)}&am=${share.toFixed(2)}&cu=INR&tn=${encodeURIComponent(note)}`;
+        const waText = `Hey ${p.name}, your share for ${note} is Rs.${fmt(share)}. Pay here: ${upiLink}`;
+        const waLink = `https://wa.me/${p.phone}?text=${encodeURIComponent(waText)}`;
+        return `
+          <div class="result-row">
+            <div>${escapeHtml(p.name)}<br><span class="amt">&#8377;${fmt(share)}</span></div>
+            <a class="wa" href="${waLink}" target="_blank" rel="noopener">Send on WhatsApp</a>
+          </div>
+        `;
+      }).join('');
+      document.getElementById('resultsCard').hidden = false;
+
+      const summaryLines = [
+        `${note} - total Rs.${fmt(amount)} split ${count} ways:`,
+        ...checked.map((p, i) => `- ${p.name}: Rs.${fmt(shares[i])}`),
+        ``,
+        `Pay ${upi} (UPI)`
+      ];
+      document.getElementById('summary').value = summaryLines.join('\n');
+      document.getElementById('summaryCard').hidden = false;
+    });
+
+    document.getElementById('copySummary').addEventListener('click', () => {
+      const ta = document.getElementById('summary');
+      ta.select();
+      navigator.clipboard.writeText(ta.value).then(() => {
+        const btn = document.getElementById('copySummary');
+        const original = btn.textContent;
+        btn.textContent = 'Copied!';
+        setTimeout(() => { btn.textContent = original; }, 1500);
+      }).catch(() => {});
+    });
+  </script>
+</body>
+</html>

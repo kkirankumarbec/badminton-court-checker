@@ -43,6 +43,31 @@ https://<your-github-username>.github.io/badminton-court-checker/
 Anyone with that link (a friend included) sees the same live availability,
 refreshed every 15 minutes. No login needed to view it.
 
+## Splitting the court cost
+
+The page links to `docs/split.html` ("Split court cost") - a small
+calculator for whoever paid to work out and send everyone's share:
+
+1. Enter the total amount, the payee's UPI ID (whoever booked/paid that
+   session), and pick who's playing from the group roster.
+2. It splits the amount evenly (any odd paisa goes to the last person, so
+   the total always adds up exactly) and generates, per person, a
+   **WhatsApp click-to-send link** pre-filled with their share and a UPI
+   payment link that opens their UPI app when they tap it.
+3. There's also a **"Copy summary"** button with one combined message for
+   pasting straight into the group chat - WhatsApp has no way to link
+   directly into a group, so this is the fastest manual alternative.
+
+Nothing is sent automatically - you still tap "Send on WhatsApp" (or paste
+the summary) yourself for each session; there's no API for auto-nudging
+someone's UPI app, and this keeps money-related messages under your
+control.
+
+**The group roster** lives in `docs/players.json` - a simple list of
+`{"name": ..., "phone": "91..."}` entries (country code, no `+` or spaces).
+Edit that file directly in the repo to add or remove people; it isn't
+touched by the automated workflow, so your edits stick.
+
 ## How it works
 
 `check_availability.py` calls:
