@@ -2,7 +2,13 @@ name: Badminton Court Availability Check
 
 on:
   schedule:
-    - cron: '*/15 * * * *'  # every 15 minutes, all day
+    # Hourly, offset a few minutes past the hour. GitHub Actions' native
+    # schedule trigger does not reliably honor sub-hourly cron intervals
+    # (observed ~2-6hr real gaps when this was set to */15) - hourly, off
+    # the exact hour to dodge top-of-hour queueing, is the most reliable
+    # cadence achievable without an external trigger. See README for how
+    # to add one (e.g. cron-job.org) if true 15-min freshness is needed.
+    - cron: '7 * * * *'
   workflow_dispatch: {}
 
 permissions:

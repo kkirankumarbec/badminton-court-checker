@@ -7,9 +7,26 @@ login or scraping needed.
 
 ## Schedule
 
-Runs **every 15 minutes, all day, every day** via GitHub Actions
-(`*/15 * * * *`). There's no fixed check-in time anymore - the page and
-alerts are continuously kept current.
+Runs **hourly** (a few minutes past the hour), every day, via GitHub
+Actions (`7 * * * *`).
+
+This used to be set to every 15 minutes, but GitHub's native `schedule`
+trigger doesn't reliably honor sub-hourly cron intervals - it silently
+delayed runs to every 2-6 hours in practice, regardless of the requested
+interval. Hourly (off the exact hour, to dodge top-of-hour queueing
+across GitHub) is the most reliable cadence achievable without an
+external trigger.
+
+**For true 15-minute freshness**, add an external scheduler (e.g.
+[cron-job.org](https://cron-job.org), free) that calls GitHub's API to
+run the workflow on demand:
+
+- URL: `https://api.github.com/repos/<owner>/<repo>/actions/workflows/check.yml/dispatches`
+- Method: `POST`, every 15 minutes
+- Headers: `Authorization: Bearer <a GitHub token scoped to Actions: Read and write on just this repo>`, `Accept: application/vnd.github+json`, `Content-Type: application/json`
+- Body: `{"ref":"main"}`
+
+The native hourly schedule stays as a harmless fallback either way.
 
 **Each run shows the next 3 days** (today + the following 2), and picks
 the relevant hours per day:
@@ -24,7 +41,7 @@ plus Saturday morning, automatically.
 ## Alerts
 
 An email fires the moment any shown slot's availability drops to **2 or
-fewer courts**. Because checks run every 15 minutes, a slot that *stays*
+fewer courts**. Because checks run repeatedly, a slot that *stays*
 low doesn't re-alert every cycle - you're emailed once when it first
 crosses the threshold, and only alerted again if it recovers (books back
 up above 2) and later drops low again. This state is tracked in
@@ -41,7 +58,8 @@ https://<your-github-username>.github.io/badminton-court-checker/
 ```
 
 Anyone with that link (a friend included) sees the same live availability,
-refreshed every 15 minutes. No login needed to view it.
+refreshed roughly hourly (or every 15 min if you've added the external
+trigger above). No login needed to view it.
 
 ## Splitting the court cost
 
@@ -137,8 +155,9 @@ became low.
 You can also trigger a run manually from the Actions tab ("Run workflow").
 
 Note: since the page's "last updated" timestamp changes on every run, the
-workflow commits to the repo roughly every 15 minutes (~96 commits/day).
-That's expected and harmless (GitHub Actions minutes are unlimited for
+workflow commits to the repo roughly once an hour (~24 commits/day, more
+if you've added the external 15-min trigger). That's expected and
+harmless (GitHub Actions minutes are unlimited for
 public repos) - just don't be surprised by a busy commit history.
 
 ## Adjusting the alert
