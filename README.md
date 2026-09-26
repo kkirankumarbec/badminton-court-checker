@@ -28,7 +28,7 @@ run the workflow on demand:
 
 The native hourly schedule stays as a harmless fallback either way.
 
-**Each run shows the next 3 days** (today + the following 2), and picks
+**Each run shows the next 3 days that still have slots**, and picks
 the relevant hours per day:
 
 - A **weekday** shows that day's **7 PM, 8 PM, and 9 PM** slots.
@@ -37,6 +37,13 @@ the relevant hours per day:
 So depending on what day it is, the 3-day window naturally mixes evening
 and morning slots - e.g. checking on a Thursday shows Thu/Fri evenings
 plus Saturday morning, automatically.
+
+**Slots that have already started are hidden.** Playo keeps reporting the
+original availability for hours that are over, so without this the page
+would show stale rows and could even alert on a slot nobody can book. Once
+a day has no slots left (say, Saturday after 10 AM), it drops off and the
+window moves on so you still see 3 days. The page also hides started slots
+in your browser between refreshes, using your clock.
 
 ## Alerts
 

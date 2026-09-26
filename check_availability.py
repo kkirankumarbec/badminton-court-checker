@@ -117,15 +117,25 @@ def day_label(now, d, offset):
 
 
 def collect_groups(now):
-    """Build availability groups for today and the next DAYS_AHEAD-1 days.
+    """Build availability groups for the next DAYS_AHEAD days that still have slots.
 
     Each day shows whichever hours are relevant to it: evening slots
     (7-10 PM) for a weekday, morning slots (8-10 AM) for a weekend day.
+    A slot that has already started is dropped (Playo keeps reporting the
+    original availability for past hours, which would show stale rows and
+    fire false alerts). A day with nothing left is skipped, and the window
+    moves on to the next day so you still see DAYS_AHEAD days.
     """
     groups = []
-    for offset in range(DAYS_AHEAD):
+    for offset in range(DAYS_AHEAD + 7):
+        if len(groups) == DAYS_AHEAD:
+            break
         d = now + timedelta(days=offset)
         hours = WEEKDAY_HOURS if d.weekday() <= 4 else WEEKEND_HOURS
+        hours = [h for h in hours
+                 if d.replace(hour=h, minute=0, second=0, microsecond=0) > now]
+        if not hours:
+            continue
         groups.append(build_group(
             day_label(now, d, offset),
             d.strftime("%A, %d %b %Y"),
@@ -184,7 +194,8 @@ def render_html(groups, now):
     cards = []
     for g in groups:
         rows = "".join(
-            f'<tr class="{status_class(n, g["total"])}">'
+            f'<tr class="{status_class(n, g["total"])}" '
+            f'data-start="{g["date_str"]}T{h:02d}:00:00+05:30">'
             f'<td>{fmt_hour(h)} - {fmt_hour(h + 1)}</td>'
             f'<td>{n} of {g["total"]} free</td>'
             f"</tr>"
@@ -255,6 +266,7 @@ def render_html(groups, now):
   <h1>Badmintonium Academy</h1>
   <div class="subtitle">Doddathoguru, Electronic City - court availability</div>
   {body_html}
+  <div class="subtitle" id="empty" hidden>No upcoming slots right now - the next refresh will add the next day.</div>
   <a class="book" href="{BOOKING_URL}">Book on Playo</a>
   <a class="split" href="split.html">Split today's cost</a>
   <a class="dues" href="dues.html">Clear dues</a>
@@ -262,6 +274,19 @@ def render_html(groups, now):
     Last updated {updated}<br>
     Live - refreshes every 15 minutes via GitHub Actions
   </footer>
+  <script>
+    // Between refreshes, hide slots that have started since the page was built.
+    (function () {{
+      var now = Date.now();
+      document.querySelectorAll('tr[data-start]').forEach(function (tr) {{
+        if (Date.parse(tr.getAttribute('data-start')) <= now) tr.remove();
+      }});
+      document.querySelectorAll('section.card').forEach(function (s) {{
+        if (!s.querySelector('tr')) s.remove();
+      }});
+      if (!document.querySelector('section.card')) document.getElementById('empty').hidden = false;
+    }})();
+  </script>
 </body>
 </html>
 """
