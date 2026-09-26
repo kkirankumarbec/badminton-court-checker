@@ -68,30 +68,29 @@ Anyone with that link (a friend included) sees the same live availability,
 refreshed roughly hourly (or every 15 min if you've added the external
 trigger above). No login needed to view it.
 
-## Splitting the court cost
+## Splitting the court cost (`docs/split.html`)
 
-The page links to `docs/split.html` ("Split court cost") - a small
-calculator for whoever paid to work out and send everyone's share:
+For sessions where people played for different lengths of time (for example
+6 players, 4 of whom played 1 hr and 2 of whom stayed for 1 hr 30 min):
 
-1. Enter the total amount, the payee's UPI ID (whoever booked/paid that
-   session), and pick who's playing from the group roster.
-2. It splits the amount evenly (any odd paisa goes to the last person, so
-   the total always adds up exactly) and generates, per person, a
-   **WhatsApp click-to-send link** pre-filled with their share and a
-   tappable pay link (`docs/pay.html`, see below) that opens their UPI app.
-3. There's also a **"Copy summary"** button with one combined message for
-   pasting straight into the group chat - WhatsApp has no way to link
-   directly into a group, so this is the fastest manual alternative.
+1. Enter the **total amount paid**.
+2. Under "Who played, and for how long", pick a duration and how many
+   players played it. Use **+ Add another duration** for more groups.
+3. Choose how to split it. The result updates as you type.
 
-Nothing is sent automatically - you still tap "Send on WhatsApp" (or paste
-the summary) yourself for each session; there's no API for auto-nudging
-someone's UPI app, and this keeps money-related messages under your
-control.
+- **Extra time is paid by those who stay** (default). The shorter slot is
+  shared by everyone who played it and each extra stretch only by the people
+  who played it. It needs the court price for the shorter slot(s), e.g. the
+  1-hr price of 307; those prices are remembered on your device. Example:
+  450 total, 4 players for 1 hr, 2 for 1 hr 30 min gives 307 / 6 = 51.17 for
+  the 1-hr players, and the 2 who stayed pay 51.17 + 143 / 2 = 122.67.
+- **Split by hours played.** Everyone pays the same rate per hour, so it only
+  needs the total. Same example: 450 / 7 player-hours gives 64.29 and 96.43.
 
-**The group roster** lives in `docs/players.json` - a simple list of
-`{"name": ..., "phone": "91..."}` entries (country code, no `+` or spaces).
-Edit that file directly in the repo to add or remove people; it isn't
-touched by the automated workflow, so your edits stick.
+Amounts are rounded to the paisa, so the collected total can differ from the
+amount paid by a couple of paise; the page says so when it does. "Copy
+summary" gives a message to paste into the group chat (add a note and your
+UPI ID first if you want them in it). Nothing is sent automatically.
 
 ## Clearing dues (`docs/dues.html`)
 

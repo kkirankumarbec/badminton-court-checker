@@ -6,6 +6,7 @@
 <title>Split Court Cost</title>
 <style>
   :root { color-scheme: light dark; }
+  [hidden] { display: none !important; }
   body {
     font-family: -apple-system, Segoe UI, Roboto, Arial, sans-serif;
     max-width: 480px; margin: 0 auto; padding: 24px 16px 48px;
@@ -18,180 +19,330 @@
     background: #fff; border-radius: 12px; padding: 16px 18px;
     margin-bottom: 16px; box-shadow: 0 1px 3px rgba(0,0,0,0.08);
   }
-  .card h2 { font-size: 1rem; margin: 0 0 12px; }
+  .card h2 { font-size: 1rem; margin: 0 0 12px; display: flex; justify-content: space-between; gap: 8px; }
+  .card h2 span:last-child { color: #1a7f37; font-weight: 600; }
   label { display: block; font-size: 0.85rem; color: #555; margin: 14px 0 6px; }
-  label:first-child { margin-top: 0; }
-  input[type="text"], input[type="number"] {
+  label:first-of-type { margin-top: 0; }
+  input[type="text"], input[type="number"], select {
     width: 100%; box-sizing: border-box; padding: 10px 12px; font-size: 1rem;
     border: 1px solid #ddd; border-radius: 8px; background: #fff; color: #1a1a1a;
   }
-  .players { display: flex; flex-direction: column; gap: 8px; margin-top: 6px; }
-  .player-check { display: flex; align-items: center; gap: 10px; font-size: 0.95rem; }
-  .player-check input { width: 18px; height: 18px; }
+  .group { padding: 12px 0; border-top: 1px solid #eee; }
+  .group:first-child { border-top: none; padding-top: 0; }
+  .group label { margin: 0; }
+  .line { display: flex; gap: 8px; align-items: flex-end; }
+  .line .f { flex: 1; min-width: 0; }
+  .line .narrow { flex: 0 0 84px; }
+  .cap { display: block; font-size: 0.8rem; color: #777; margin-bottom: 4px; }
+  .rm {
+    flex: none; border: none; background: none; color: #c62828; font-size: 1.4rem;
+    cursor: pointer; padding: 6px 4px; line-height: 1;
+  }
+  .price-wrap { margin-top: 10px; }
+  .method { margin-top: 16px; border-top: 1px solid #eee; padding-top: 14px; }
+  .radio { display: flex; gap: 10px; align-items: flex-start; margin: 0 0 12px; font-size: 0.95rem; color: inherit; cursor: pointer; }
+  .radio input { margin-top: 4px; flex: none; }
+  .radio small { color: #777; font-size: 0.82rem; line-height: 1.35; display: block; margin-top: 2px; }
   .btn {
     display: block; width: 100%; text-align: center; background: #1a7f37; color: #fff;
     text-decoration: none; padding: 12px; border-radius: 10px; font-weight: 600;
-    border: none; font-size: 1rem; margin-top: 18px; cursor: pointer;
+    border: none; font-size: 1rem; margin-top: 14px; cursor: pointer;
   }
   .btn.secondary { background: #eee; color: #1a1a1a; }
-  .btn:disabled { opacity: 0.5; cursor: not-allowed; }
+  .btn.small { padding: 10px; font-size: 0.9rem; margin-top: 4px; }
+  .notice { color: #777; font-size: 0.9rem; padding: 0 2px 16px; }
+  .notice.error { color: #c62828; }
   .result-row {
-    display: flex; justify-content: space-between; align-items: center;
-    padding: 10px 0; border-top: 1px solid #eee;
+    display: flex; justify-content: space-between; align-items: center; gap: 12px;
+    padding: 12px 0; border-top: 1px solid #eee;
   }
-  .result-row:first-child { border-top: none; }
-  .result-row .amt { font-weight: 600; }
-  .result-row .wa {
-    font-size: 0.85rem; color: #1a7f37; text-decoration: none; font-weight: 600;
-    border: 1px solid #1a7f37; border-radius: 8px; padding: 6px 10px;
-  }
-  .empty { color: #888; font-size: 0.9rem; text-align: center; padding: 12px 0; }
+  .result-row:first-child { border-top: none; padding-top: 0; }
+  .result-row .sub { color: #777; font-size: 0.82rem; }
+  .result-row .amt { font-weight: 700; font-size: 1.15rem; text-align: right; }
+  .result-row .each { font-weight: 400; font-size: 0.8rem; color: #777; }
+  .explain { font-size: 0.85rem; color: #666; border-top: 1px solid #eee; padding-top: 12px; line-height: 1.5; }
+  .total-line { font-size: 0.85rem; color: #666; margin-top: 8px; }
+  .rounding { font-size: 0.8rem; color: #b35900; margin-top: 6px; }
   textarea {
     width: 100%; box-sizing: border-box; min-height: 120px; font-family: inherit;
     font-size: 0.9rem; padding: 10px; border-radius: 8px; border: 1px solid #ddd;
-    background: #fafafa; color: #1a1a1a; margin-top: 10px;
+    background: #fafafa; color: #1a1a1a; margin-top: 12px;
   }
-  .hint { color: #999; font-size: 0.8rem; margin-top: 6px; }
+  .hint { color: #999; font-size: 0.8rem; margin-top: 8px; line-height: 1.4; }
+  .foot { text-align: center; font-size: 0.85rem; margin-top: 8px; }
+  .foot a { color: #1a7f37; text-decoration: none; }
   @media (prefers-color-scheme: dark) {
     body { background: #17181a; color: #eee; }
     .card { background: #232427; box-shadow: none; }
-    .subtitle, .hint { color: #999; }
+    .subtitle, .hint, .notice, .explain, .total-line, .result-row .sub, .result-row .each, .radio small, .cap { color: #999; }
     label { color: #aaa; }
-    input[type="text"], input[type="number"], textarea {
+    input[type="text"], input[type="number"], select, textarea {
       background: #1c1d1f; color: #eee; border-color: #3a3a3a;
     }
     .btn.secondary { background: #333; color: #eee; }
-    .result-row { border-top-color: #333; }
-    .empty { color: #777; }
+    .group, .method, .result-row, .explain { border-top-color: #333; }
+    .notice.error { color: #ef7b7b; }
   }
 </style>
 </head>
 <body>
   <a class="back" href="./">&larr; Back to availability</a>
   <h1>Split Court Cost</h1>
-  <div class="subtitle">Badmintonium Academy - work out and send everyone's share</div>
+  <div class="subtitle">For when people play for different lengths of time</div>
 
   <div class="card">
-    <h2>Session details</h2>
-    <label for="amount">Total amount (&#8377;)</label>
-    <input type="number" id="amount" min="0" step="0.01" placeholder="e.g. 1400">
-
-    <label for="upi">Payee UPI ID (whoever paid upfront)</label>
-    <input type="text" id="upi" placeholder="e.g. yourname@okhdfcbank">
-
-    <label for="note">Note (optional)</label>
-    <input type="text" id="note" placeholder="Badminton court">
-
-    <label>Who's splitting this?</label>
-    <div class="players" id="players"><div class="empty">Loading roster...</div></div>
-
-    <button class="btn" id="calc" disabled>Calculate split</button>
+    <h2>Court</h2>
+    <label for="total">Total amount paid (&#8377;)</label>
+    <input type="number" id="total" min="0" step="0.01" inputmode="decimal" placeholder="e.g. 450">
   </div>
 
-  <div class="card" id="resultsCard" hidden>
-    <h2>Each person's share</h2>
+  <div class="card">
+    <h2><span>Who played, and for how long</span><span id="playerCount"></span></h2>
+    <div id="rows"></div>
+    <button class="btn secondary small" id="addRow" type="button">+ Add another duration</button>
+
+    <div class="method">
+      <label class="radio">
+        <input type="radio" name="method" value="slice" checked>
+        <span><strong>Extra time is paid by those who stay</strong>
+          <small>The shorter slot is shared by everyone; the extra time only by the people who played it. Needs the court price for the shorter slot.</small></span>
+      </label>
+      <label class="radio">
+        <input type="radio" name="method" value="hours">
+        <span><strong>Split by hours played</strong>
+          <small>Everyone pays the same rate per hour. Only needs the total.</small></span>
+      </label>
+    </div>
+  </div>
+
+  <div class="notice" id="notice"></div>
+
+  <div class="card" id="resultCard" hidden>
+    <h2><span>Each person pays</span></h2>
     <div id="results"></div>
+    <div class="explain" id="explain"></div>
+    <div class="total-line" id="totalLine"></div>
+    <div class="rounding" id="rounding"></div>
   </div>
 
   <div class="card" id="summaryCard" hidden>
-    <h2>Copy for the group chat</h2>
+    <h2><span>Copy for the group chat</span></h2>
+    <label for="note">Note (optional)</label>
+    <input type="text" id="note" placeholder="Badminton court" maxlength="60">
+    <label for="upi">Payee UPI ID (optional, added to the message)</label>
+    <input type="text" id="upi" placeholder="e.g. yourname@okhdfcbank" autocapitalize="off" autocomplete="off" spellcheck="false">
     <textarea id="summary" readonly></textarea>
-    <button class="btn secondary" id="copySummary">Copy summary</button>
-    <div class="hint">Paste this straight into the group's WhatsApp - individual reminders above are 1:1 only, WhatsApp doesn't allow linking directly into a group.</div>
+    <button class="btn secondary" id="copySummary" type="button">Copy summary</button>
+    <div class="hint">Paste this into the group's WhatsApp. To nudge people one by one about what they still owe, use Clear dues.</div>
   </div>
 
+  <div class="foot">Already have amounts to chase? <a href="dues.html">Clear dues</a></div>
+
   <script>
-    let roster = [];
+    const $ = id => document.getElementById(id);
+    const DURATIONS = [30, 60, 90, 120, 150, 180];
+    const LS_PRICES = 'split.prices';
+    const LS_UPI = 'dues.upi';
+    const rows = [];
 
-    fetch('players.json')
-      .then(r => r.json())
-      .then(data => {
-        roster = data;
-        renderPlayers();
-      })
-      .catch(() => {
-        document.getElementById('players').innerHTML =
-          '<div class="empty">Could not load players.json</div>';
-      });
-
-    function renderPlayers() {
-      const el = document.getElementById('players');
-      if (!roster.length) {
-        el.innerHTML = '<div class="empty">No players in roster yet - edit docs/players.json</div>';
-        return;
-      }
-      el.innerHTML = roster.map((p, i) => `
-        <label class="player-check">
-          <input type="checkbox" value="${i}" checked>
-          ${escapeHtml(p.name)}
-        </label>
-      `).join('');
-      document.getElementById('calc').disabled = false;
+    function lsGet(key, fallback) {
+      try {
+        const raw = localStorage.getItem(key);
+        return raw === null ? fallback : JSON.parse(raw);
+      } catch (e) { return fallback; }
+    }
+    function lsSet(key, value) {
+      try { localStorage.setItem(key, JSON.stringify(value)); } catch (e) {}
     }
 
-    function escapeHtml(s) {
-      return s.replace(/[&<>"']/g, c => ({
-        '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
-      }[c]));
-    }
+    // Court price for the shorter durations, remembered on this device (60 min defaults to the 1-hour rate).
+    let savedPrices = lsGet(LS_PRICES, { '60': 307 });
+    if (!savedPrices || typeof savedPrices !== 'object') savedPrices = {};
 
+    function label(minutes) {
+      const h = Math.floor(minutes / 60), m = minutes % 60;
+      return [h ? h + ' hr' : '', m ? m + ' min' : ''].filter(Boolean).join(' ');
+    }
     function fmt(n) {
       return n.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
     }
+    function plural(n) { return n + (n === 1 ? ' player' : ' players'); }
 
-    document.getElementById('calc').addEventListener('click', () => {
-      const amount = parseFloat(document.getElementById('amount').value);
-      const upi = document.getElementById('upi').value.trim();
-      const note = document.getElementById('note').value.trim() || 'Badminton court';
-      const checked = Array.from(document.querySelectorAll('.player-check input:checked'))
-        .map(cb => roster[parseInt(cb.value, 10)]);
+    function addRow(minutes, players) {
+      const wrap = document.createElement('div');
+      wrap.className = 'group';
+      wrap.innerHTML = `
+        <div class="line">
+          <label class="f"><span class="cap">Hours played</span>
+            <select class="hours">${DURATIONS.map(m => `<option value="${m}">${label(m)}</option>`).join('')}</select></label>
+          <label class="f narrow"><span class="cap">Players</span>
+            <input class="players" type="number" min="0" max="99" step="1" inputmode="numeric"></label>
+          <button class="rm" type="button" aria-label="Remove this row">&times;</button>
+        </div>
+        <div class="price-wrap" hidden>
+          <label><span class="cap">Court price if booked for just <b class="plabel"></b> (&#8377;)</span>
+            <input class="price" type="number" min="0" step="0.01" inputmode="decimal"></label>
+        </div>`;
+      const r = {
+        el: wrap,
+        hoursEl: wrap.querySelector('.hours'),
+        playersEl: wrap.querySelector('.players'),
+        priceEl: wrap.querySelector('.price'),
+        priceWrap: wrap.querySelector('.price-wrap'),
+        plabel: wrap.querySelector('.plabel'),
+      };
+      r.hoursEl.value = String(minutes);
+      r.playersEl.value = players;
+      r.priceEl.value = savedPrices[minutes] || '';
 
-      if (!amount || amount <= 0) { alert('Enter a valid total amount.'); return; }
-      if (!upi || !upi.includes('@')) { alert('Enter a valid UPI ID (e.g. name@bank).'); return; }
-      if (!checked.length) { alert('Select at least one player.'); return; }
+      r.hoursEl.addEventListener('change', () => { r.priceEl.value = savedPrices[r.hoursEl.value] || ''; });
+      r.priceEl.addEventListener('input', () => {
+        const p = parseFloat(r.priceEl.value);
+        if (p > 0) savedPrices[r.hoursEl.value] = p; else delete savedPrices[r.hoursEl.value];
+        lsSet(LS_PRICES, savedPrices);
+      });
+      wrap.querySelector('.rm').addEventListener('click', () => {
+        if (rows.length === 1) return;
+        rows.splice(rows.indexOf(r), 1);
+        wrap.remove();
+        compute();
+      });
+      wrap.addEventListener('input', compute);
+      wrap.addEventListener('change', compute);
+      rows.push(r);
+      $('rows').appendChild(wrap);
+    }
 
-      const count = checked.length;
-      const base = Math.floor((amount / count) * 100) / 100;
-      const shares = checked.map(() => base);
-      const remainder = Math.round((amount - base * count) * 100) / 100;
-      shares[shares.length - 1] = Math.round((shares[shares.length - 1] + remainder) * 100) / 100;
+    function fail(msg) {
+      const n = $('notice');
+      n.textContent = msg;
+      n.className = 'notice error';
+      $('resultCard').hidden = true;
+      $('summaryCard').hidden = true;
+    }
 
-      const resultsEl = document.getElementById('results');
-      resultsEl.innerHTML = checked.map((p, i) => {
-        const share = shares[i];
-        const payUrl = new URL('pay.html', location.href);
-        payUrl.search = new URLSearchParams({ pa: upi, am: share.toFixed(2), tn: note }).toString();
-        const waText = `Hey ${p.name}, your share for ${note} is Rs.${fmt(share)}. Pay here: ${payUrl.href}`;
-        const waLink = `https://wa.me/${p.phone}?text=${encodeURIComponent(waText)}`;
-        return `
-          <div class="result-row">
-            <div>${escapeHtml(p.name)}<br><span class="amt">&#8377;${fmt(share)}</span></div>
-            <a class="wa" href="${waLink}" target="_blank" rel="noopener">Send on WhatsApp</a>
-          </div>
-        `;
-      }).join('');
-      document.getElementById('resultsCard').hidden = false;
+    function compute() {
+      const method = document.querySelector('input[name="method"]:checked').value;
+      const total = parseFloat($('total').value);
 
-      const summaryLines = [
-        `${note} - total Rs.${fmt(amount)} split ${count} ways:`,
-        ...checked.map((p, i) => `- ${p.name}: Rs.${fmt(shares[i])}`),
-        ``,
-        `Pay ${upi} (UPI)`
-      ];
-      document.getElementById('summary').value = summaryLines.join('\n');
-      document.getElementById('summaryCard').hidden = false;
+      // Merge rows that picked the same duration.
+      const byMinutes = new Map();
+      let playerCount = 0;
+      rows.forEach(r => {
+        const players = parseInt(r.playersEl.value, 10);
+        const minutes = parseInt(r.hoursEl.value, 10);
+        if (!(players > 0)) return;
+        playerCount += players;
+        const g = byMinutes.get(minutes) || { minutes, players: 0, price: NaN };
+        g.players += players;
+        const p = parseFloat(r.priceEl.value);
+        if (isNaN(g.price) && p > 0) g.price = p;
+        byMinutes.set(minutes, g);
+      });
+      const groups = Array.from(byMinutes.values()).sort((a, b) => a.minutes - b.minutes);
+      const longest = groups.length ? groups[groups.length - 1].minutes : 0;
+
+      $('playerCount').textContent = playerCount ? plural(playerCount) : '';
+      rows.forEach(r => {
+        const minutes = parseInt(r.hoursEl.value, 10);
+        const players = parseInt(r.playersEl.value, 10);
+        r.priceWrap.hidden = !(method === 'slice' && players > 0 && minutes < longest);
+        r.plabel.textContent = label(minutes);
+      });
+
+      $('notice').className = 'notice';
+      $('notice').textContent = '';
+      if (!(total > 0)) { fail('Enter the total amount paid.'); $('notice').className = 'notice'; return; }
+      if (!groups.length) { fail('Enter how many players played.'); return; }
+
+      let amounts;
+      const explain = [];
+      if (method === 'slice') {
+        const prices = groups.map((g, i) => (i === groups.length - 1 ? total : g.price));
+        for (let i = 0; i < groups.length - 1; i++) {
+          if (!(prices[i] > 0)) {
+            fail('Enter the court price for ' + label(groups[i].minutes) + ', or switch to "Split by hours played".');
+            return;
+          }
+        }
+        for (let i = 1; i < groups.length; i++) {
+          if (!(prices[i] > prices[i - 1])) {
+            fail('The price for ' + label(groups[i].minutes) + ' (₹' + fmt(prices[i]) +
+                 ') must be more than the price for ' + label(groups[i - 1].minutes) + ' (₹' + fmt(prices[i - 1]) + ').');
+            return;
+          }
+        }
+        let remaining = playerCount, prevPrice = 0, prevMinutes = 0, running = 0;
+        amounts = groups.map((g, i) => {
+          const cost = prices[i] - prevPrice;
+          const each = cost / remaining;
+          running += each;
+          explain.push(label(g.minutes - prevMinutes) + (i ? ' extra' : '') + ': ₹' + fmt(cost) +
+                       ' shared by ' + remaining + ' → ₹' + fmt(each) + ' each');
+          remaining -= g.players;
+          prevPrice = prices[i];
+          prevMinutes = g.minutes;
+          return running;
+        });
+      } else {
+        const playerMinutes = groups.reduce((s, g) => s + g.players * g.minutes, 0);
+        amounts = groups.map(g => total * g.minutes / playerMinutes);
+        explain.push('₹' + fmt(total) + ' ÷ ' + (+(playerMinutes / 60).toFixed(2)) +
+                     ' player-hours = ₹' + fmt(total / playerMinutes * 60) + ' per hour');
+      }
+
+      const rounded = amounts.map(a => Math.round(a * 100) / 100);
+      const collected = Math.round(groups.reduce((s, g, i) => s + rounded[i] * g.players, 0) * 100) / 100;
+      const diff = Math.round((collected - total) * 100) / 100;
+
+      $('results').innerHTML = groups.map((g, i) => `
+        <div class="result-row">
+          <div>${label(g.minutes)}<br><span class="sub">${plural(g.players)} &middot; &#8377;${fmt(rounded[i] * g.players)} together</span></div>
+          <div class="amt">&#8377;${fmt(rounded[i])}<span class="each"> each</span></div>
+        </div>`).join('');
+      $('explain').innerHTML = explain.map(e => '<div>' + e + '</div>').join('');
+      $('totalLine').textContent = 'Total ₹' + fmt(total) + ' for ' + plural(playerCount);
+      $('rounding').textContent = diff === 0 ? '' :
+        'Rounded to the paisa, so this collects ₹' + fmt(Math.abs(diff)) + (diff > 0 ? ' more' : ' less') +
+        ' than the ₹' + fmt(total) + ' paid.';
+      $('resultCard').hidden = false;
+
+      const note = $('note').value.trim() || 'Badminton court';
+      const upi = $('upi').value.trim();
+      const upiOk = /^[A-Za-z0-9._-]{2,}@[A-Za-z0-9.-]{2,}$/.test(upi);
+      if (upiOk) lsSet(LS_UPI, upi);
+      $('summary').value = [
+        note + ' - Rs.' + fmt(total) + ', ' + plural(playerCount) + ':',
+        ...groups.map((g, i) => '- ' + label(g.minutes) + ' (' + g.players + '): Rs.' + fmt(rounded[i]) + ' each'),
+        '',
+        'Please settle up in GPay' + (upiOk ? ', or pay ' + upi + ' (UPI)' : '') + '.'
+      ].join('\n');
+      $('summaryCard').hidden = false;
+    }
+
+    addRow(60, 4);
+    addRow(90, 2);
+    const savedUpi = lsGet(LS_UPI, '');
+    if (typeof savedUpi === 'string') $('upi').value = savedUpi;
+
+    $('addRow').addEventListener('click', () => {
+      const used = rows.map(r => parseInt(r.hoursEl.value, 10));
+      addRow(DURATIONS.find(m => !used.includes(m)) || 60, 1);
+      compute();
     });
+    ['total', 'note', 'upi'].forEach(id => $(id).addEventListener('input', compute));
+    document.querySelectorAll('input[name="method"]').forEach(el => el.addEventListener('change', compute));
 
-    document.getElementById('copySummary').addEventListener('click', () => {
-      const ta = document.getElementById('summary');
-      ta.select();
-      navigator.clipboard.writeText(ta.value).then(() => {
-        const btn = document.getElementById('copySummary');
+    $('copySummary').addEventListener('click', () => {
+      const btn = $('copySummary');
+      navigator.clipboard.writeText($('summary').value).then(() => {
         const original = btn.textContent;
         btn.textContent = 'Copied!';
         setTimeout(() => { btn.textContent = original; }, 1500);
       }).catch(() => {});
     });
+
+    compute();
   </script>
 </body>
 </html>
