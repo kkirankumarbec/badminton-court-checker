@@ -159,8 +159,9 @@
       const resultsEl = document.getElementById('results');
       resultsEl.innerHTML = checked.map((p, i) => {
         const share = shares[i];
-        const upiLink = `upi://pay?pa=${encodeURIComponent(upi)}&am=${share.toFixed(2)}&cu=INR&tn=${encodeURIComponent(note)}`;
-        const waText = `Hey ${p.name}, your share for ${note} is Rs.${fmt(share)}. Pay here: ${upiLink}`;
+        const payUrl = new URL('pay.html', location.href);
+        payUrl.search = new URLSearchParams({ pa: upi, am: share.toFixed(2), tn: note }).toString();
+        const waText = `Hey ${p.name}, your share for ${note} is Rs.${fmt(share)}. Pay here: ${payUrl.href}`;
         const waLink = `https://wa.me/${p.phone}?text=${encodeURIComponent(waText)}`;
         return `
           <div class="result-row">

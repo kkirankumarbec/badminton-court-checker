@@ -1,0 +1,281 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Clear Dues</title>
+<style>
+  :root { color-scheme: light dark; }
+  body {
+    font-family: -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+    max-width: 480px; margin: 0 auto; padding: 24px 16px 48px;
+    background: #f7f7f8; color: #1a1a1a;
+  }
+  a.back { color: #1a7f37; text-decoration: none; font-size: 0.9rem; display: inline-block; margin-bottom: 12px; }
+  h1 { font-size: 1.25rem; margin-bottom: 4px; }
+  .subtitle { color: #666; font-size: 0.9rem; margin-bottom: 20px; }
+  .card {
+    background: #fff; border-radius: 12px; padding: 16px 18px;
+    margin-bottom: 16px; box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+  }
+  .card h2 { font-size: 1rem; margin: 0 0 12px; display: flex; justify-content: space-between; }
+  label { display: block; font-size: 0.85rem; color: #555; margin: 14px 0 6px; }
+  label:first-of-type { margin-top: 0; }
+  input[type="text"], input[type="number"], input[type="tel"] {
+    width: 100%; box-sizing: border-box; padding: 10px 12px; font-size: 1rem;
+    border: 1px solid #ddd; border-radius: 8px; background: #fff; color: #1a1a1a;
+  }
+  .person { display: flex; align-items: center; gap: 10px; padding: 8px 0; border-top: 1px solid #eee; }
+  .person:first-child { border-top: none; }
+  .person .name { flex: 1; font-size: 0.95rem; word-break: break-word; }
+  .person input { width: 110px; flex: none; }
+  .person .rm {
+    flex: none; border: none; background: none; color: #c62828; font-size: 1.2rem;
+    cursor: pointer; padding: 0 4px;
+  }
+  details { margin-top: 12px; }
+  summary { color: #1a7f37; font-size: 0.9rem; cursor: pointer; }
+  .add-row { display: flex; gap: 8px; margin-top: 10px; }
+  .add-row input { flex: 1; min-width: 0; }
+  .btn {
+    display: block; width: 100%; text-align: center; background: #1a7f37; color: #fff;
+    text-decoration: none; padding: 12px; border-radius: 10px; font-weight: 600;
+    border: none; font-size: 1rem; margin-top: 18px; cursor: pointer;
+  }
+  .btn.secondary { background: #eee; color: #1a1a1a; }
+  .btn.small { width: auto; display: inline-block; padding: 10px 14px; margin-top: 0; font-size: 0.9rem; }
+  .result-row {
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 10px 0; border-top: 1px solid #eee;
+  }
+  .result-row:first-child { border-top: none; }
+  .result-row .amt { font-weight: 600; }
+  .result-row .wa {
+    font-size: 0.85rem; color: #1a7f37; text-decoration: none; font-weight: 600;
+    border: 1px solid #1a7f37; border-radius: 8px; padding: 6px 10px; flex: none;
+  }
+  .empty { color: #888; font-size: 0.9rem; text-align: center; padding: 12px 0; }
+  .error { color: #c62828; font-size: 0.9rem; margin-top: 12px; }
+  textarea {
+    width: 100%; box-sizing: border-box; min-height: 130px; font-family: inherit;
+    font-size: 0.9rem; padding: 10px; border-radius: 8px; border: 1px solid #ddd;
+    background: #fafafa; color: #1a1a1a; margin-top: 4px;
+  }
+  .hint { color: #999; font-size: 0.8rem; margin-top: 8px; line-height: 1.4; }
+  .foot { text-align: center; font-size: 0.85rem; margin-top: 8px; }
+  .foot a { color: #1a7f37; text-decoration: none; }
+  @media (prefers-color-scheme: dark) {
+    body { background: #17181a; color: #eee; }
+    .card { background: #232427; box-shadow: none; }
+    .subtitle, .hint { color: #999; }
+    label { color: #aaa; }
+    input[type="text"], input[type="number"], input[type="tel"], textarea {
+      background: #1c1d1f; color: #eee; border-color: #3a3a3a;
+    }
+    .btn.secondary { background: #333; color: #eee; }
+    .person, .result-row { border-top-color: #333; }
+    .empty { color: #777; }
+  }
+</style>
+</head>
+<body>
+  <a class="back" href="./">&larr; Back to availability</a>
+  <h1>Clear Dues</h1>
+  <div class="subtitle">Nudge everyone who still owes from the GPay split</div>
+
+  <div class="card">
+    <h2>Who is owed</h2>
+    <label for="upi">Payee UPI ID</label>
+    <input type="text" id="upi" placeholder="e.g. yourname@okhdfcbank" autocapitalize="off" autocomplete="off" spellcheck="false">
+
+    <label for="note">Note</label>
+    <input type="text" id="note" placeholder="Badminton court dues" maxlength="60">
+  </div>
+
+  <div class="card">
+    <h2>Who owes what</h2>
+    <div class="hint" style="margin: -4px 0 10px;">Type the amount GPay shows for each person. Leave it blank to skip them.</div>
+    <div id="people"><div class="empty">Loading roster...</div></div>
+
+    <details>
+      <summary>Add someone not listed</summary>
+      <div class="add-row">
+        <input type="text" id="newName" placeholder="Name" maxlength="40">
+        <input type="tel" id="newPhone" placeholder="10-digit mobile" inputmode="numeric">
+      </div>
+      <button class="btn secondary small" id="addBtn" type="button" style="margin-top:10px;">Add</button>
+      <div class="hint">Saved on this device only. To add someone for everyone, add them to docs/players.json in the repo.</div>
+    </details>
+
+    <div class="error" id="err" hidden></div>
+    <button class="btn" id="gen" type="button">Generate reminders</button>
+  </div>
+
+  <div class="card" id="resultsCard" hidden>
+    <h2><span>Reminders</span><span id="total"></span></h2>
+    <div id="results"></div>
+  </div>
+
+  <div class="card" id="summaryCard" hidden>
+    <h2>Copy for the group chat</h2>
+    <textarea id="summary" readonly></textarea>
+    <button class="btn secondary" id="copySummary" type="button">Copy summary</button>
+    <div class="hint">WhatsApp can't link into a group, so paste this yourself. The per-person buttons above open a 1:1 chat with the message ready to send.</div>
+  </div>
+
+  <div class="foot">Splitting a fresh booking instead? <a href="split.html">Split today's cost</a></div>
+
+  <script>
+    const LS_PEOPLE = 'dues.extraPeople';
+    const LS_UPI = 'dues.upi';
+    let base = [];
+    let extra = lsGet(LS_PEOPLE, []);
+    const amounts = {};
+
+    function lsGet(key, fallback) {
+      try {
+        const raw = localStorage.getItem(key);
+        return raw === null ? fallback : JSON.parse(raw);
+      } catch (e) { return fallback; }
+    }
+    function lsSet(key, value) {
+      try { localStorage.setItem(key, JSON.stringify(value)); } catch (e) {}
+    }
+
+    function escapeHtml(s) {
+      return String(s).replace(/[&<>"']/g, c => ({
+        '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
+      }[c]));
+    }
+    function fmt(n) {
+      return n.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    }
+    function normPhone(raw) {
+      const d = String(raw).replace(/\D/g, '');
+      if (d.length === 10) return '91' + d;
+      if (d.length === 12 && d.startsWith('91')) return d;
+      return null;
+    }
+    function showError(msg) {
+      const e = document.getElementById('err');
+      e.textContent = msg || '';
+      e.hidden = !msg;
+    }
+
+    function roster() {
+      const seen = new Set(base.map(p => p.phone));
+      const localOnly = extra.filter(p => !seen.has(p.phone));
+      return base.map(p => ({ ...p, local: false }))
+        .concat(localOnly.map(p => ({ ...p, local: true })));
+    }
+
+    function renderPeople() {
+      const el = document.getElementById('people');
+      const list = roster();
+      if (!list.length) {
+        el.innerHTML = '<div class="empty">No one in the roster yet - add someone below.</div>';
+        return;
+      }
+      el.innerHTML = list.map(p => `
+        <div class="person">
+          <div class="name">${escapeHtml(p.name)}</div>
+          <input type="number" min="0" step="0.01" inputmode="decimal" placeholder="&#8377; 0"
+                 data-phone="${escapeHtml(p.phone)}" value="${escapeHtml(amounts[p.phone] || '')}">
+          ${p.local ? `<button class="rm" type="button" data-rm="${escapeHtml(p.phone)}" title="Remove">&times;</button>` : ''}
+        </div>
+      `).join('');
+    }
+
+    document.getElementById('people').addEventListener('input', e => {
+      const phone = e.target.dataset && e.target.dataset.phone;
+      if (phone) amounts[phone] = e.target.value;
+    });
+    document.getElementById('people').addEventListener('click', e => {
+      const phone = e.target.dataset && e.target.dataset.rm;
+      if (!phone) return;
+      extra = extra.filter(p => p.phone !== phone);
+      delete amounts[phone];
+      lsSet(LS_PEOPLE, extra);
+      renderPeople();
+    });
+
+    document.getElementById('addBtn').addEventListener('click', () => {
+      const name = document.getElementById('newName').value.trim();
+      const phone = normPhone(document.getElementById('newPhone').value);
+      if (!name) { showError('Enter a name.'); return; }
+      if (!phone) { showError('Enter a valid 10-digit Indian mobile number.'); return; }
+      if (roster().some(p => p.phone === phone)) { showError('That number is already in the list.'); return; }
+      extra.push({ name, phone });
+      lsSet(LS_PEOPLE, extra);
+      document.getElementById('newName').value = '';
+      document.getElementById('newPhone').value = '';
+      showError('');
+      renderPeople();
+    });
+
+    const savedUpi = lsGet(LS_UPI, '');
+    if (typeof savedUpi === 'string') document.getElementById('upi').value = savedUpi;
+
+    fetch('players.json')
+      .then(r => r.json())
+      .then(data => { base = Array.isArray(data) ? data : []; renderPeople(); })
+      .catch(() => { base = []; renderPeople(); });
+
+    document.getElementById('gen').addEventListener('click', () => {
+      showError('');
+      const upi = document.getElementById('upi').value.trim();
+      const note = document.getElementById('note').value.trim() || 'Badminton court dues';
+
+      if (!/^[A-Za-z0-9._-]{2,}@[A-Za-z0-9.-]{2,}$/.test(upi)) {
+        showError('Enter a valid payee UPI ID (e.g. name@bank).');
+        return;
+      }
+      const rows = roster()
+        .map(p => ({ p, paise: Math.round(parseFloat(amounts[p.phone]) * 100) }))
+        .filter(r => isFinite(r.paise) && r.paise > 0);
+      if (!rows.length) {
+        showError('Enter an amount for at least one person.');
+        return;
+      }
+      lsSet(LS_UPI, upi);
+
+      const totalPaise = rows.reduce((s, r) => s + r.paise, 0);
+
+      document.getElementById('results').innerHTML = rows.map(({ p, paise }) => {
+        const amt = paise / 100;
+        const payUrl = new URL('pay.html', location.href);
+        payUrl.search = new URLSearchParams({ pa: upi, am: amt.toFixed(2), tn: note }).toString();
+        const text = `Hey ${p.name}, a friendly reminder - you still owe Rs.${fmt(amt)} for ${note}. Settle up in GPay, or pay here: ${payUrl.href}`;
+        const wa = `https://wa.me/${p.phone}?text=${encodeURIComponent(text)}`;
+        return `
+          <div class="result-row">
+            <div>${escapeHtml(p.name)}<br><span class="amt">&#8377;${fmt(amt)}</span></div>
+            <a class="wa" href="${wa}" target="_blank" rel="noopener">Remind on WhatsApp</a>
+          </div>`;
+      }).join('');
+      document.getElementById('total').textContent = 'Total ₹' + fmt(totalPaise / 100);
+      document.getElementById('resultsCard').hidden = false;
+
+      const lines = [
+        `${note} - outstanding:`,
+        ...rows.map(r => `- ${r.p.name}: Rs.${fmt(r.paise / 100)}`),
+        ``,
+        `Total: Rs.${fmt(totalPaise / 100)}`,
+        `Please settle up in GPay, or pay ${upi} (UPI).`
+      ];
+      document.getElementById('summary').value = lines.join('\n');
+      document.getElementById('summaryCard').hidden = false;
+    });
+
+    document.getElementById('copySummary').addEventListener('click', () => {
+      const ta = document.getElementById('summary');
+      const btn = document.getElementById('copySummary');
+      navigator.clipboard.writeText(ta.value).then(() => {
+        const original = btn.textContent;
+        btn.textContent = 'Copied!';
+        setTimeout(() => { btn.textContent = original; }, 1500);
+      }).catch(() => {});
+    });
+  </script>
+</body>
+</html>

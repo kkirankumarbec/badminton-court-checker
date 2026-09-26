@@ -10,7 +10,6 @@ VENUE_ID = "2b413335-e49f-4241-9ebd-c2d95606b286"
 VENUE_NAME = "Badmintonium Academy, Doddathoguru, Electronic City"
 SPORT_ID = "SP5"  # Badminton
 BOOKING_URL = f"https://playo.co/booking?venueId={VENUE_ID}"
-LEDGER_URL = "https://docs.google.com/spreadsheets/d/1-K8kFsUaslnNLxYRyabJQ6kkjjw8mPvPcVYfDLPLkc8/edit"
 
 WEEKDAY_HOURS = [19, 20, 21]  # 7 PM, 8 PM, 9 PM slots - shown for Mon-Fri
 WEEKEND_HOURS = [8, 9]        # 8 AM, 9 AM slots - shown for Sat/Sun
@@ -220,7 +219,7 @@ def render_html(groups, now):
     text-decoration: none; padding: 12px; border-radius: 10px;
     font-weight: 600; margin: 0 0 10px; border: 1px solid #1a7f37;
   }}
-  .ledger {{
+  .dues {{
     display: block; text-align: center; background: #fff; color: #555;
     text-decoration: none; padding: 12px; border-radius: 10px;
     font-weight: 600; margin: 0 0 20px; border: 1px solid #ccc;
@@ -231,8 +230,8 @@ def render_html(groups, now):
     .card {{ background: #232427; box-shadow: none; }}
     td {{ border-top-color: #333; }}
     .subtitle, footer {{ color: #999; }}
-    .split, .ledger {{ background: #232427; }}
-    .ledger {{ color: #ccc; border-color: #444; }}
+    .split, .dues {{ background: #232427; }}
+    .dues {{ color: #ccc; border-color: #444; }}
   }}
 </style>
 </head>
@@ -242,7 +241,7 @@ def render_html(groups, now):
   {body_html}
   <a class="book" href="{BOOKING_URL}">Book on Playo</a>
   <a class="split" href="split.html">Split today's cost</a>
-  <a class="ledger" href="{LEDGER_URL}" target="_blank" rel="noopener">Who owes what (ledger)</a>
+  <a class="dues" href="dues.html">Clear dues</a>
   <footer>
     Last updated {updated}<br>
     Live - refreshes every 15 minutes via GitHub Actions

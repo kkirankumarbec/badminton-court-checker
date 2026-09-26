@@ -70,8 +70,8 @@ calculator for whoever paid to work out and send everyone's share:
    session), and pick who's playing from the group roster.
 2. It splits the amount evenly (any odd paisa goes to the last person, so
    the total always adds up exactly) and generates, per person, a
-   **WhatsApp click-to-send link** pre-filled with their share and a UPI
-   payment link that opens their UPI app when they tap it.
+   **WhatsApp click-to-send link** pre-filled with their share and a
+   tappable pay link (`docs/pay.html`, see below) that opens their UPI app.
 3. There's also a **"Copy summary"** button with one combined message for
    pasting straight into the group chat - WhatsApp has no way to link
    directly into a group, so this is the fastest manual alternative.
@@ -86,39 +86,34 @@ control.
 Edit that file directly in the repo to add or remove people; it isn't
 touched by the automated workflow, so your edits stick.
 
-## Tracking who owes what (running ledger)
+## Clearing dues (`docs/dues.html`)
 
-The page also links to a **Google Sheet** ("Who owes what") that tracks
-outstanding balances across sessions - unlike the split calculator above,
-this one remembers, so an unpaid amount carries forward until it's settled,
-however many days that takes. Three of you book on rotation, so this is a
-shared Sheet, not another static page.
+The group tracks its running split inside **GPay** (that's where the
+balances accumulate, and settling up there clears them automatically), so
+this repo deliberately does not keep a second ledger. The "Clear dues"
+page only handles the part GPay doesn't: getting people to actually pay.
 
-It has four sections in one tab:
+1. Enter the **payee UPI ID** (whoever is owed - it's remembered on your
+   device after the first time) and an optional note.
+2. Type the **amount GPay shows** next to each person who still owes.
+   Leave everyone else blank. Someone missing from the roster can be added
+   on the page ("Add someone not listed"); that's saved on your device only.
+   To add someone for everyone, put them in `docs/players.json`.
+3. **Generate reminders** gives a **Remind on WhatsApp** button per person
+   (a 1:1 chat with the message and amount ready to send) plus a combined
+   summary to paste into the group chat.
 
-- **ROSTER** - player names (grows independently of `players.json`).
-- **BOOKINGS** - one row per day you book: Date, Total, Paid By. The
-  Num Players and Share columns fill in automatically.
-- **PARTICIPANTS** - one row per person per booking (add rows for
-  everyone who played that date). Their share is auto-filled - 0 for
-  whoever is listed as "Paid By" that day, since paying the venue already
-  covers their own share.
-- **PAYMENTS** - one row per payment someone makes to settle up.
-- **BALANCES** - fully automatic, don't type into it: Total Owed minus
-  Total Paid per person, running forever until you log a payment against
-  them.
+I can't read GPay balances (there's no API), so the amounts are typed in by
+whoever sends the reminders. Nothing is sent automatically.
 
-To use it day to day: after a booking, add one Bookings row and one
-Participants row per player who showed up. When someone pays, add one
-Payments row. That's it - Balances updates itself. Running low on
-pre-filled rows (it ships with ~6 weeks of headroom) just means selecting
-the last formula row in a section and copy-pasting it down as many rows as
-you need - Sheets adjusts the relative references automatically.
+**`docs/pay.html`** is the pay link inside those messages. It's a normal
+https link, so it's tappable in WhatsApp; opening it on a phone shows the
+amount and payee and a button that opens the UPI app pre-filled. It
+validates its inputs, but anyone can craft a link to it, so it always shows
+the payee UPI ID prominently for the payer to check.
 
-**Sharing it**: the Sheet is private to whoever created it by default.
-Share it (Sheets' own Share button, "Editor" access) with the other two
-people who book, so all three can log bookings and payments without
-routing through you.
+The earlier Google Sheet ledger ("Badminton Court Ledger" in Drive) is no
+longer linked from the site; the file is untouched if you want it back.
 
 ## How it works
 
