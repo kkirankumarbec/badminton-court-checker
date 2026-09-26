@@ -54,15 +54,29 @@
 <body>
   <h1>Badmintonium Academy</h1>
   <div class="subtitle">Doddathoguru, Electronic City - court availability</div>
-  <section class="card"><h2>Today (Saturday, 26 Sep)</h2><table><tr class="ok"><td>8:00 AM - 9:00 AM</td><td>4 of 7 free</td></tr><tr class="low"><td>9:00 AM - 10:00 AM</td><td>2 of 7 free</td></tr></table></section>
-<section class="card"><h2>Tomorrow (Sunday, 27 Sep)</h2><table><tr class="ok"><td>8:00 AM - 9:00 AM</td><td>5 of 7 free</td></tr><tr class="ok"><td>9:00 AM - 10:00 AM</td><td>4 of 7 free</td></tr></table></section>
-<section class="card"><h2>Monday (28 Sep)</h2><table><tr class="low"><td>7:00 PM - 8:00 PM</td><td>2 of 7 free</td></tr><tr class="ok"><td>8:00 PM - 9:00 PM</td><td>5 of 7 free</td></tr><tr class="ok"><td>9:00 PM - 10:00 PM</td><td>7 of 7 free</td></tr></table></section>
+  <section class="card"><h2>Tomorrow (Sunday, 27 Sep)</h2><table><tr class="ok" data-start="2026-09-27T08:00:00+05:30"><td>8:00 AM - 9:00 AM</td><td>4 of 7 free</td></tr><tr class="ok" data-start="2026-09-27T09:00:00+05:30"><td>9:00 AM - 10:00 AM</td><td>4 of 7 free</td></tr></table></section>
+<section class="card"><h2>Monday (28 Sep)</h2><table><tr class="low" data-start="2026-09-28T19:00:00+05:30"><td>7:00 PM - 8:00 PM</td><td>2 of 7 free</td></tr><tr class="ok" data-start="2026-09-28T20:00:00+05:30"><td>8:00 PM - 9:00 PM</td><td>5 of 7 free</td></tr><tr class="ok" data-start="2026-09-28T21:00:00+05:30"><td>9:00 PM - 10:00 PM</td><td>7 of 7 free</td></tr></table></section>
+<section class="card"><h2>Tuesday (29 Sep)</h2><table><tr class="mid" data-start="2026-09-29T19:00:00+05:30"><td>7:00 PM - 8:00 PM</td><td>3 of 7 free</td></tr><tr class="ok" data-start="2026-09-29T20:00:00+05:30"><td>8:00 PM - 9:00 PM</td><td>6 of 7 free</td></tr><tr class="ok" data-start="2026-09-29T21:00:00+05:30"><td>9:00 PM - 10:00 PM</td><td>7 of 7 free</td></tr></table></section>
+  <div class="subtitle" id="empty" hidden>No upcoming slots right now - the next refresh will add the next day.</div>
   <a class="book" href="https://playo.co/booking?venueId=2b413335-e49f-4241-9ebd-c2d95606b286">Book on Playo</a>
   <a class="split" href="split.html">Split today's cost</a>
   <a class="dues" href="dues.html">Clear dues</a>
   <footer>
-    Last updated Saturday, 26 Sep 2026 - 11:15 PM IST<br>
+    Last updated Saturday, 26 Sep 2026 - 11:31 PM IST<br>
     Live - refreshes every 15 minutes via GitHub Actions
   </footer>
+  <script>
+    // Between refreshes, hide slots that have started since the page was built.
+    (function () {
+      var now = Date.now();
+      document.querySelectorAll('tr[data-start]').forEach(function (tr) {
+        if (Date.parse(tr.getAttribute('data-start')) <= now) tr.remove();
+      });
+      document.querySelectorAll('section.card').forEach(function (s) {
+        if (!s.querySelector('tr')) s.remove();
+      });
+      if (!document.querySelector('section.card')) document.getElementById('empty').hidden = false;
+    })();
+  </script>
 </body>
 </html>
