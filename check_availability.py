@@ -1,5 +1,6 @@
 import json
 import os
+import re
 import smtplib
 from email.mime.text import MIMEText
 from datetime import datetime, timedelta, timezone
@@ -18,7 +19,20 @@ ALERT_THRESHOLD = 2           # courts remaining that triggers an alert
 
 GMAIL_ADDRESS = os.getenv("GMAIL_ADDRESS", "").strip()
 GMAIL_APP_PASSWORD = os.getenv("GMAIL_APP_PASSWORD", "").strip()
-NOTIFY_EMAIL = os.getenv("NOTIFY_EMAIL", "").strip() or GMAIL_ADDRESS
+
+
+def parse_recipients(raw):
+    seen, out = set(), []
+    for addr in re.split(r"[,;\s]+", raw or ""):
+        if "@" in addr and addr.lower() not in seen:
+            seen.add(addr.lower())
+            out.append(addr)
+    return out
+
+
+# NOTIFY_EMAIL may hold several comma-separated addresses; the first is the owner.
+RECIPIENTS = (parse_recipients(os.getenv("NOTIFY_EMAIL", ""))
+              or parse_recipients(GMAIL_ADDRESS))
 
 IST = timezone(timedelta(hours=5, minutes=30))
 BASE_DIR = os.path.dirname(__file__)
@@ -26,19 +40,21 @@ PAGE_PATH = os.path.join(BASE_DIR, "docs", "index.html")
 STATE_PATH = os.path.join(BASE_DIR, "alert_state.json")
 
 
-def send_email(subject, body):
-    if not (GMAIL_ADDRESS and GMAIL_APP_PASSWORD and NOTIFY_EMAIL):
+def send_email(subject, body, owner_only=False):
+    recipients = RECIPIENTS[:1] if owner_only else RECIPIENTS
+    if not (GMAIL_ADDRESS and GMAIL_APP_PASSWORD and recipients):
         print("Email not configured (GMAIL_ADDRESS / GMAIL_APP_PASSWORD / "
               "NOTIFY_EMAIL missing) - skipping email:", subject)
         return
     msg = MIMEText(body)
     msg["Subject"] = subject
     msg["From"] = GMAIL_ADDRESS
-    msg["To"] = NOTIFY_EMAIL
+    msg["To"] = ", ".join(recipients)
     with smtplib.SMTP_SSL("smtp.gmail.com", 465) as server:
         server.login(GMAIL_ADDRESS, GMAIL_APP_PASSWORD)
-        server.sendmail(GMAIL_ADDRESS, [NOTIFY_EMAIL], msg.as_string())
-    print("Email sent to", NOTIFY_EMAIL)
+        refused = server.sendmail(GMAIL_ADDRESS, recipients, msg.as_string())
+    # Never print addresses: GitHub only masks the whole secret string in public logs.
+    print(f"Email sent to {len(recipients) - len(refused)} of {len(recipients)} recipient(s)")
 
 
 def fetch_availability(date_str):
@@ -289,7 +305,7 @@ def main():
 
 def send_failure_alert(message):
     try:
-        send_email("[ALERT] badminton-court-checker did not run", message)
+        send_email("[ALERT] badminton-court-checker did not run", message, owner_only=True)
     except Exception as exc:
         print("Also failed to send the failure alert email:", exc)
 

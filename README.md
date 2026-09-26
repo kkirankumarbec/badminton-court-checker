@@ -137,7 +137,13 @@ became low.
    |---|---|
    | `GMAIL_ADDRESS` | The Gmail address to send from |
    | `GMAIL_APP_PASSWORD` | A Gmail App Password for that account |
-   | `NOTIFY_EMAIL` | Where alerts are sent (defaults to `GMAIL_ADDRESS` if unset) |
+   | `NOTIFY_EMAIL` | Who gets the alerts: one address, or several separated by commas (defaults to `GMAIL_ADDRESS` if unset) |
+
+   To alert more than one person, put all their addresses in
+   `NOTIFY_EMAIL`, e.g. `you@gmail.com,friend@gmail.com`. The first address
+   is the owner and is the only one that also gets the "did not run"
+   failure emails. Keep the addresses in the secret rather than in the code:
+   this repo is public, and the run logs never print them.
 
    Without these secrets the workflow still runs, updates the page, and
    logs availability - it just skips sending email.
