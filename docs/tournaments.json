@@ -1,0 +1,60 @@
+{
+  "fetched_at": "2026-10-12T21:57+05:30",
+  "source": "Playo community events, Bengaluru",
+  "source_url": "https://playo.co/experiences/bangalore/event/badminton",
+  "truncated": false,
+  "events": [
+    {
+      "id": "85cbd48e-665e-48eb-a95d-f3bc896e068d",
+      "name": "Mixed Corporate Badminton Ranking Series",
+      "venue": "Hoodi Wellness & Sports Club",
+      "date": "2026-10-24",
+      "end_date": "2026-10-25",
+      "date_label": "24th & 25th October 2026",
+      "timing": "8:30 AM - 10:00 PM",
+      "summary": "The Mixed Corporate Badminton Ranking Series is a corporate badminton tournament designed for employees from private and public sector companies. Players can compete with colleagues or team up with partners from other companies, making it...",
+      "entry_fee": "",
+      "url": "https://playo.co/experience-details/mixed-corporate-badminton-ranking-series-bengaluru-24th-25th-october-2026",
+      "register_url": "https://playo.co/activity?source=app&activityId=6aa7af375332006a8900029d"
+    },
+    {
+      "id": "6d827c46-6e61-4ff5-baf1-e74ebe83c155",
+      "name": "Aptha Badminton Academy - Women's Doubles & Mixed Doubles Tournament",
+      "venue": "Aptha Badminton Academy",
+      "date": "2026-10-25",
+      "end_date": "2026-10-25",
+      "date_label": "25th October 2026",
+      "timing": "",
+      "summary": "Aptha presents a Womens Doubles & Mixed Doubles Tournament, featuring multiple age-based categories for womens singles, womens doubles and mixed doubles. The tournament will follow a competitive league and knockout format, with cash...",
+      "entry_fee": "Singles: 600 per player\nDoubles: 1,000 per pair",
+      "url": "https://playo.co/experience-details/aptha-badminton-academy-womens-doubles-mixed-doubles-tournament-bengaluru-2026-10-25",
+      "register_url": "https://playo.co/activity?source=app&activityId=6a9830a8f2ec8d4b28d5cd8a"
+    },
+    {
+      "id": "19fc2bbf-f915-43ce-8a9f-dc4183a0f8d6",
+      "name": "GameFit Sarjapura Open 2026",
+      "venue": "GameFit Sports Academy",
+      "date": "2026-10-25",
+      "end_date": "2026-10-25",
+      "date_label": "25th October 2026",
+      "timing": "7 AM onwards",
+      "summary": "Get ready for an action-packed badminton tournament at GameFit Academy! The GameFit Sarjapura Open 2026 features singles, doubles, mixed doubles, and 35+ categories, with matches played in an official Round Robin + Knockout format....",
+      "entry_fee": "Early Bird - First 25 Entries\nValid till 4th October 2026\n\nSingles: 899/player\nDoubles/Mixed Doubles: 1,799/team\n\nRegular Pricing\n\nSingles: 1,099/player\nDoubles/Mixed Doubles: 1,999/team",
+      "url": "https://playo.co/experience-details/gamefit-sarjapura-open-2026-bengaluru-2026-10-25",
+      "register_url": "https://playo.co/activity?source=app&activityId=6ab4d447cd8180283f155829"
+    },
+    {
+      "id": "13d1f2b0-074c-4a25-9729-e0d319c2d552",
+      "name": "SFL Badminton Championship Bengaluru 2026",
+      "venue": "Orchid Sports Academy",
+      "date": "2026-10-25",
+      "end_date": "2026-10-25",
+      "date_label": "25th October 2026",
+      "timing": "10 AM - 6 PM",
+      "summary": "Get ready for the SFL Badminton Championship Bengaluru, featuring Junior, Open and 35+ categories. Players can compete for a 50,000 prize pool, along with medals and gift hampers. The tournament will be held at Orchid Sports Academy...",
+      "entry_fee": "",
+      "url": "https://playo.co/experience-details/sfl-badminton-championship-bengaluru-2026-bengaluru-2026-10-25",
+      "register_url": "https://playo.co/activity?source=app&activityId=6abf7aa23cc2b8804328ec59"
+    }
+  ]
+}

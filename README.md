@@ -121,6 +121,33 @@ the payee UPI ID prominently for the payer to check.
 The earlier Google Sheet ledger ("Badminton Court Ledger" in Drive) is no
 longer linked from the site; the file is untouched if you want it back.
 
+## Tournaments (`docs/tournaments.html`)
+
+The "Tournaments this week" button opens a page listing upcoming **local
+badminton tournaments around Bengaluru**: what, when, where, a short
+description, the entry fee as the organiser lists it, and **Register** /
+**Details on Playo** buttons. "This week" is the next 7 days; later events
+sit under "Coming up". Finished events disappear on their own.
+
+**Where it comes from.** `fetch_tournaments.py` reads Playo's public
+community-events pages (the same listing you see on playo.co), keeps only
+badminton events tagged *Tournament*, and skips multi-sport mass events
+such as Decathlon's kids' days. It writes `docs/tournaments.json`, which
+the page renders. It runs as a step of the same workflow as the court
+check, but refreshes only when the file is more than ~2 days old, so most
+runs do nothing. It never stores organisers' phone numbers or emails, and
+a failed fetch keeps the previous file (the page warns if the list is more
+than a week old).
+
+**Limits.** Only events listed on Playo appear. Tournaments advertised
+on Instagram, club notice boards or other sites will not. If Playo ever
+changes its page layout the fetch step fails quietly (the job continues)
+and the page eventually shows the stale-list warning. Playo also shows
+only the first ~20 events per list; if that is ever exceeded the page says
+some events may be missing. To refresh right away, delete
+`docs/tournaments.json` in the repo: the next run (within 15 minutes)
+fetches and recreates it.
+
 ## How it works
 
 `check_availability.py` calls:

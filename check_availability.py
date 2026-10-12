@@ -246,19 +246,20 @@ def render_html(groups, now):
     text-decoration: none; padding: 12px; border-radius: 10px;
     font-weight: 600; margin: 0 0 10px; border: 1px solid #1a7f37;
   }}
-  .dues {{
+  .dues, .tourn {{
     display: block; text-align: center; background: #fff; color: #555;
     text-decoration: none; padding: 12px; border-radius: 10px;
-    font-weight: 600; margin: 0 0 20px; border: 1px solid #ccc;
+    font-weight: 600; margin: 0 0 10px; border: 1px solid #ccc;
   }}
+  .tourn {{ margin-bottom: 20px; }}
   footer {{ color: #999; font-size: 0.8rem; text-align: center; }}
   @media (prefers-color-scheme: dark) {{
     body {{ background: #17181a; color: #eee; }}
     .card {{ background: #232427; box-shadow: none; }}
     td {{ border-top-color: #333; }}
     .subtitle, footer {{ color: #999; }}
-    .split, .dues {{ background: #232427; }}
-    .dues {{ color: #ccc; border-color: #444; }}
+    .split, .dues, .tourn {{ background: #232427; }}
+    .dues, .tourn {{ color: #ccc; border-color: #444; }}
   }}
 </style>
 </head>
@@ -270,6 +271,7 @@ def render_html(groups, now):
   <a class="book" href="{BOOKING_URL}">Book on Playo</a>
   <a class="split" href="split.html">Split today's cost</a>
   <a class="dues" href="dues.html">Clear dues</a>
+  <a class="tourn" href="tournaments.html">Tournaments this week</a>
   <footer>
     Last updated {updated}<br>
     Live - refreshes every 15 minutes via GitHub Actions

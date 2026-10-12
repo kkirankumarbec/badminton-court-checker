@@ -1,0 +1,170 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Badminton Tournaments</title>
+<style>
+  :root { color-scheme: light dark; }
+  [hidden] { display: none !important; }
+  body {
+    font-family: -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+    max-width: 480px; margin: 0 auto; padding: 24px 16px 48px;
+    background: #f7f7f8; color: #1a1a1a;
+  }
+  a.back { color: #1a7f37; text-decoration: none; font-size: 0.9rem; display: inline-block; margin-bottom: 12px; }
+  h1 { font-size: 1.25rem; margin-bottom: 4px; }
+  h2.section { font-size: 0.95rem; margin: 22px 0 10px; display: flex; justify-content: space-between; }
+  h2.section span { color: #777; font-weight: 400; }
+  .subtitle { color: #666; font-size: 0.9rem; margin-bottom: 8px; }
+  .card {
+    background: #fff; border-radius: 12px; padding: 16px 18px;
+    margin-bottom: 12px; box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+  }
+  .card h3 { font-size: 1rem; margin: 0 0 6px; line-height: 1.3; }
+  .when { color: #1a7f37; font-weight: 600; font-size: 0.9rem; }
+  .meta { color: #666; font-size: 0.85rem; margin-top: 2px; }
+  .summary { font-size: 0.9rem; margin: 10px 0 0; line-height: 1.45; }
+  .fee {
+    font-size: 0.85rem; margin: 10px 0 0; padding: 10px 12px; background: #f3f6f4;
+    border-radius: 8px; white-space: pre-line; line-height: 1.45;
+  }
+  .fee b { display: block; font-size: 0.75rem; color: #777; font-weight: 600; margin-bottom: 4px; }
+  .actions { display: flex; gap: 8px; margin-top: 14px; }
+  .btn {
+    flex: 1; text-align: center; text-decoration: none; padding: 10px; border-radius: 10px;
+    font-weight: 600; font-size: 0.9rem; border: 1px solid #1a7f37; color: #1a7f37; background: transparent;
+  }
+  .btn.primary { background: #1a7f37; color: #fff; }
+  .notice { color: #777; font-size: 0.9rem; padding: 4px 2px 8px; }
+  .warn { background: #fff4e5; color: #8a5300; border-radius: 10px; padding: 10px 12px; font-size: 0.85rem; margin: 12px 0; }
+  footer { color: #999; font-size: 0.8rem; text-align: center; margin-top: 28px; line-height: 1.5; }
+  footer a { color: #1a7f37; text-decoration: none; }
+  @media (prefers-color-scheme: dark) {
+    body { background: #17181a; color: #eee; }
+    .card { background: #232427; box-shadow: none; }
+    .subtitle, .meta, .notice, h2.section span { color: #999; }
+    .fee { background: #1c1d1f; }
+    .warn { background: #3a2a10; color: #f0c27a; }
+    footer { color: #888; }
+  }
+</style>
+</head>
+<body>
+  <a class="back" href="./">&larr; Back to availability</a>
+  <h1>Badminton Tournaments</h1>
+  <div class="subtitle">Open &amp; community tournaments around Bengaluru</div>
+
+  <div class="warn" id="stale" hidden></div>
+  <div class="notice" id="status">Loading...</div>
+
+  <h2 class="section" id="weekHead" hidden><span style="color:inherit;font-weight:600">This week</span><span id="weekRange"></span></h2>
+  <div class="notice" id="weekEmpty" hidden>Nothing in the next 7 days &mdash; the next tournaments are below.</div>
+  <div id="week"></div>
+
+  <h2 class="section" id="laterHead" hidden><span style="color:inherit;font-weight:600">Coming up</span></h2>
+  <div id="later"></div>
+
+  <footer id="foot" hidden>
+    <div id="checked"></div>
+    <div>Source: Playo community events, Bengaluru. Refreshed automatically every 2 days.</div>
+    <div>Only events listed on Playo appear here &mdash; check clubs and academies directly for others.</div>
+    <div id="trunc" hidden>The source list was long, so a few events may be missing.</div>
+  </footer>
+
+  <script>
+    const $ = id => document.getElementById(id);
+    const IST_DAY = d => d.toLocaleDateString('en-CA', { timeZone: 'Asia/Kolkata' });
+    const ISO = /^\d{4}-\d{2}-\d{2}$/;
+
+    function addDays(iso, n) {
+      const [y, m, d] = iso.split('-').map(Number);
+      return new Date(Date.UTC(y, m - 1, d + n)).toISOString().slice(0, 10);
+    }
+    function nice(iso) {
+      const [y, m, d] = iso.split('-').map(Number);
+      return new Date(Date.UTC(y, m - 1, d)).toLocaleDateString('en-IN',
+        { weekday: 'short', day: 'numeric', month: 'short', timeZone: 'UTC' });
+    }
+    function safeLink(url) {
+      return typeof url === 'string' && url.startsWith('https://playo.co/') ? url : null;
+    }
+    function el(tag, cls, text) {
+      const e = document.createElement(tag);
+      if (cls) e.className = cls;
+      if (text !== undefined && text !== '') e.textContent = text;
+      return e;
+    }
+    function button(label, url, primary) {
+      const a = el('a', 'btn' + (primary ? ' primary' : ''), label);
+      a.href = url; a.target = '_blank'; a.rel = 'noopener noreferrer';
+      return a;
+    }
+
+    function card(ev) {
+      const c = el('div', 'card');
+      c.appendChild(el('h3', '', ev.name));
+      const same = !ev.end_date || ev.end_date === ev.date;
+      c.appendChild(el('div', 'when', same ? nice(ev.date) : nice(ev.date) + ' – ' + nice(ev.end_date)));
+      const meta = [ev.timing, ev.venue].filter(Boolean).join('  ·  ');
+      if (meta) c.appendChild(el('div', 'meta', meta));
+      if (ev.summary) c.appendChild(el('p', 'summary', ev.summary));
+      if (ev.entry_fee) {
+        const fee = el('div', 'fee');
+        fee.appendChild(el('b', '', 'Entry fee, as listed by the organiser'));
+        fee.appendChild(document.createTextNode(ev.entry_fee));
+        c.appendChild(fee);
+      }
+      const actions = el('div', 'actions');
+      const reg = safeLink(ev.register_url), det = safeLink(ev.url);
+      if (reg) actions.appendChild(button('Register', reg, true));
+      if (det) actions.appendChild(button('Details on Playo', det, !reg));
+      if (actions.children.length) c.appendChild(actions);
+      return c;
+    }
+
+    function render(data, now) {
+      const today = IST_DAY(now);
+      const weekEnd = addDays(today, 6);
+      const upcoming = (Array.isArray(data.events) ? data.events : [])
+        .filter(e => e && ISO.test(e.date) && (ISO.test(e.end_date) ? e.end_date : e.date) >= today)
+        .sort((a, b) => (a.date < b.date ? -1 : a.date > b.date ? 1 : 0));
+      const week = upcoming.filter(e => e.date <= weekEnd);
+      const later = upcoming.filter(e => e.date > weekEnd);
+
+      $('weekRange').textContent = nice(today) + ' – ' + nice(weekEnd);
+      $('week').replaceChildren(...week.map(card));
+      $('laterHead').hidden = !later.length;
+      $('later').replaceChildren(...later.map(card));
+      $('weekHead').hidden = !upcoming.length;
+      $('weekEmpty').hidden = !(upcoming.length && !week.length);
+
+      const st = $('status');
+      st.textContent = upcoming.length ? '' :
+        'No upcoming badminton tournaments found right now. Check back in a couple of days.';
+      st.hidden = !st.textContent;
+
+      const fetched = Date.parse(data.fetched_at || '');
+      if (isFinite(fetched)) {
+        $('checked').textContent = 'Last checked ' + new Date(fetched).toLocaleString('en-IN',
+          { day: 'numeric', month: 'short', hour: 'numeric', minute: '2-digit', timeZone: 'Asia/Kolkata' }) + ' IST.';
+        const days = (now.getTime() - fetched) / 86400000;
+        const stale = $('stale');
+        stale.hidden = days < 7;
+        if (days >= 7) stale.textContent = 'This list was last refreshed ' + Math.floor(days) +
+          ' days ago and may be out of date. Treat dates as unconfirmed.';
+      } else {
+        $('checked').textContent = '';
+        $('stale').hidden = true;
+      }
+      $('trunc').hidden = !data.truncated;
+      $('foot').hidden = false;
+    }
+
+    fetch('tournaments.json', { cache: 'no-store' })
+      .then(r => { if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })
+      .then(data => render(data, new Date()))
+      .catch(() => { $('status').textContent = "Couldn't load the tournament list. Please try again in a bit."; });
+  </script>
+</body>
+</html>
