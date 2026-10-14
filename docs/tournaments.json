@@ -1,5 +1,5 @@
 {
-  "fetched_at": "2026-10-12T22:15+05:30",
+  "fetched_at": "2026-10-14T21:45+05:30",
   "source": "Playo community events, Bengaluru",
   "source_url": "https://playo.co/experiences/bangalore/event/badminton",
   "truncated": false,
@@ -16,19 +16,6 @@
       "entry_fee": "",
       "url": "https://playo.co/experience-details/mixed-corporate-badminton-ranking-series-bengaluru-24th-25th-october-2026",
       "register_url": "https://playo.co/activity?source=app&activityId=6aa7af375332006a8900029d"
-    },
-    {
-      "id": "6d827c46-6e61-4ff5-baf1-e74ebe83c155",
-      "name": "Aptha Badminton Academy - Women's Doubles & Mixed Doubles Tournament",
-      "venue": "Aptha Badminton Academy",
-      "date": "2026-10-25",
-      "end_date": "2026-10-25",
-      "date_label": "25th October 2026",
-      "timing": "",
-      "summary": "Aptha presents a Womens Doubles & Mixed Doubles Tournament, featuring multiple age-based categories for womens singles, womens doubles and mixed doubles. The tournament will follow a competitive league and knockout format, with cash...",
-      "entry_fee": "Singles: 600 per player\nDoubles: 1,000 per pair",
-      "url": "https://playo.co/experience-details/aptha-badminton-academy-womens-doubles-mixed-doubles-tournament-bengaluru-2026-10-25",
-      "register_url": "https://playo.co/activity?source=app&activityId=6a9830a8f2ec8d4b28d5cd8a"
     },
     {
       "id": "19fc2bbf-f915-43ce-8a9f-dc4183a0f8d6",
@@ -55,6 +42,19 @@
       "entry_fee": "",
       "url": "https://playo.co/experience-details/sfl-badminton-championship-bengaluru-2026-bengaluru-2026-10-25",
       "register_url": "https://playo.co/activity?source=app&activityId=6abf7aa23cc2b8804328ec59"
+    },
+    {
+      "id": "483456b6-2097-40d4-a1bd-36c8779aadb9",
+      "name": "A1 Rallyon Presents: Karunadu Cup 2026",
+      "venue": "Krida Jagathu Sports Academy",
+      "date": "2026-11-01",
+      "end_date": "2026-11-01",
+      "date_label": "1st November 2026",
+      "timing": "9 AM onwards",
+      "summary": "Celebrate Kannada Rajyotsava with the Karunadu Cup 2026, presented by A1 Rallyon Sports & Events! Compete in exciting badminton doubles and singles categories, showcase your skills, and win cash prizes and trophies. Limited slots are...",
+      "entry_fee": "Beginner Doubles (GN): 899 per pair\nOnly known players\n\nIntermediate Doubles (GN): 899 per pair\n\nBeginner + Singles (GN): 499 per player",
+      "url": "https://playo.co/experience-details/a1-rallyon-presents:-karunadu-cup-2026-bengaluru-2026-11-01",
+      "register_url": null
     }
   ]
 }
