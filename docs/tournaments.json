@@ -1,5 +1,5 @@
 {
-  "fetched_at": "2026-10-16T21:15+05:30",
+  "fetched_at": "2026-10-18T20:45+05:30",
   "source": "Playo community events, Bengaluru",
   "source_url": "https://playo.co/experiences/bangalore/event/badminton",
   "truncated": true,
@@ -42,6 +42,19 @@
       "entry_fee": "",
       "url": "https://playo.co/experience-details/sfl-badminton-championship-bengaluru-2026-bengaluru-2026-10-25",
       "register_url": "https://playo.co/activity?source=app&activityId=6abf7aa23cc2b8804328ec59"
+    },
+    {
+      "id": "194efa25-bf58-4ddb-b556-7c452bbb8cbe",
+      "name": "State Open Junior Badminton Championship 2026",
+      "venue": "Nagarbhavi Sports Arena",
+      "date": "2026-10-25",
+      "end_date": "2026-10-25",
+      "date_label": "25th October 2026",
+      "timing": "",
+      "summary": "Get ready for the State Open Junior Badminton Championship 2026, presented by Veerashaiva Lingayata Samskruthika Vedike, Bharath Nagara, Bengaluru, in association with Net Champion Bashers (NCB). Open to all players, this tournament gives...",
+      "entry_fee": "",
+      "url": "https://playo.co/experience-details/state-open-junior-badminton-championship-2026-bengaluru-2026-10-25",
+      "register_url": "https://playo.co/activity?source=app&activityId=6ad3698b0b385e764c6c3b1f"
     },
     {
       "id": "483456b6-2097-40d4-a1bd-36c8779aadb9",
