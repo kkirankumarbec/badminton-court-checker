@@ -1,9 +1,22 @@
 {
-  "fetched_at": "2026-10-20T20:15+05:30",
+  "fetched_at": "2026-10-22T19:45+05:30",
   "source": "Playo community events, Bengaluru",
   "source_url": "https://playo.co/experiences/bangalore/event/badminton",
   "truncated": true,
   "events": [
+    {
+      "id": "fe3e0a96-28fb-42b8-ac0f-371a9faae5be",
+      "name": "Kenchappa Memorial Cup 2026 - Badminton Tournament",
+      "venue": "Gokul Sports Arena",
+      "date": "2026-10-24",
+      "end_date": "2026-10-25",
+      "date_label": "24th & 25th October 2026",
+      "timing": "9:30 AM Onwards",
+      "summary": "Gokul Sports Arena (GSA), in association with Kenchappa Lakshmamma Charitable Trust, presents the Kenchappa Memorial Cup 2026, a badminton tournament featuring Men's Doubles and Mixed Doubles categories. Compete for exciting cash prizes...",
+      "entry_fee": "Men's Doubles\n\nEntry Fee: 1,500 per team\nWinners: 30,000\n1st Runners-Up: 20,000\n2nd Runners-Up: 10,000\n\nMixed Doubles\n\nEntry Fee: 1,200 per team\nWinners: 15,000\n1st Runners-Up: 10,000",
+      "url": "https://playo.co/experience-details/kenchappa-memorial-cup-2026-badminton-tournament-bengaluru-24th-25th-october-2026",
+      "register_url": "https://playo.co/activity?source=app&activityId=6ad8743403ef6f9d4851bc2c"
+    },
     {
       "id": "85cbd48e-665e-48eb-a95d-f3bc896e068d",
       "name": "Mixed Corporate Badminton Ranking Series",
@@ -55,19 +68,6 @@
       "entry_fee": "",
       "url": "https://playo.co/experience-details/state-open-junior-badminton-championship-2026-bengaluru-2026-10-25",
       "register_url": "https://playo.co/activity?source=app&activityId=6ad3698b0b385e764c6c3b1f"
-    },
-    {
-      "id": "8e6274fc-42e4-45e0-a5e8-a2eb48312b39",
-      "name": "Karunadu Cup 2026 - Kannada Rajyotsava Special",
-      "venue": "Krida Jagathu Sports Academy",
-      "date": "2026-11-01",
-      "end_date": "2026-11-01",
-      "date_label": "1st November 2026",
-      "timing": "9 AM Onwards",
-      "summary": "Get ready for an exciting badminton showdown at the Karunadu Cup 2026, presented by A1 Rallyon Sports & Events as a special celebration of Kannada Rajyotsava. The tournament features Beginner Doubles, Intermediate Doubles and Beginner...",
-      "entry_fee": "1. Beginner Doubles (Gender-Neutral)\nEligibility: Only known players\nEntry Fee: 899 per pair\n\n2. Intermediate Doubles (Gender-Neutral)\nEntry Fee: 899 per pair\n\n3. Beginner Singles (Gender-Neutral)\nEntry Fee: 499 per player",
-      "url": "https://playo.co/experience-details/karunadu-cup-2026-kannada-rajyotsava-special-bengaluru-2026-11-01",
-      "register_url": "https://playo.co/activity?source=app&activityId=6ad360200b385e764c6c3b1e"
     }
   ]
 }
