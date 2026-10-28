@@ -1,8 +1,8 @@
 {
-  "fetched_at": "2026-10-26T18:45+05:30",
+  "fetched_at": "2026-10-28T18:15+05:30",
   "source": "Playo community events, Bengaluru",
   "source_url": "https://playo.co/experiences/bangalore/event/badminton",
-  "truncated": false,
+  "truncated": true,
   "events": [
     {
       "id": "63c68d46-87e1-4c62-87da-c4bb4dabcfa8",
@@ -16,19 +16,6 @@
       "entry_fee": "",
       "url": "https://playo.co/experience-details/rally-shuttle-club-first-edition-bengaluru-2026-10-31",
       "register_url": "https://playo.co/activity?source=app&activityId=6ad36d3ff2673387f6b51528"
-    },
-    {
-      "id": "560cc632-35f5-4b28-b21f-8686356a4373",
-      "name": "Badminton Tournament - VV Sports",
-      "venue": "VV Sports Club",
-      "date": "2026-11-01",
-      "end_date": "2026-11-01",
-      "date_label": "1st November 2026",
-      "timing": "8 AM onwards",
-      "summary": "Get ready for an exciting badminton tournament at VV Sports! Compete across multiple singles and doubles categories, showcase your skills, and battle it out for a share of the cash prizes. With a Round Robin cum Knockout format and Mavis...",
-      "entry_fee": "",
-      "url": "https://playo.co/experience-details/badminton-tournament-vv-sports-bengaluru-2026-11-01",
-      "register_url": "https://playo.co/activity?source=app&activityId=6ad85d889a5d2e0cf7fe3123"
     },
     {
       "id": "8e6274fc-42e4-45e0-a5e8-a2eb48312b39",
@@ -51,10 +38,10 @@
       "end_date": "2026-11-15",
       "date_label": "15th November, 2026",
       "timing": "9:30 AM onwards",
-      "summary": "Get ready for the Junior Badminton Tournament at Badminton J.AA Carnivals! Young players can showcase their badminton skills, compete against fellow players, and enjoy a day of sportsmanship and competition. Play, learn, grow, and take a...",
+      "summary": "",
       "entry_fee": "",
       "url": "https://playo.co/experience-details/badminton-jaa-carnivals-junior-badminton-tournament-bengaluru-2026-11-15",
-      "register_url": "https://playo.co/activity?source=app&activityId=6adc9e417ff0bc2931a43b4c"
+      "register_url": null
     }
   ]
 }
