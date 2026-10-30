@@ -1,22 +1,9 @@
 {
-  "fetched_at": "2026-10-28T18:15+05:30",
+  "fetched_at": "2026-10-30T17:45+05:30",
   "source": "Playo community events, Bengaluru",
   "source_url": "https://playo.co/experiences/bangalore/event/badminton",
   "truncated": true,
   "events": [
-    {
-      "id": "63c68d46-87e1-4c62-87da-c4bb4dabcfa8",
-      "name": "Rally Shuttle Club - First Edition",
-      "venue": "JP Badminton Academy, Srirampura, Thanisandra, Bengaluru",
-      "date": "2026-10-31",
-      "end_date": "2026-10-31",
-      "date_label": "31st October 2026",
-      "timing": "4 PM Onwards",
-      "summary": "Get ready for an exciting day of badminton at the Rally Shuttle Club First Edition, Season One Championship, a Men's Doubles tournament designed for intermediate club and corporate players. Compete against other teams, showcase your...",
-      "entry_fee": "",
-      "url": "https://playo.co/experience-details/rally-shuttle-club-first-edition-bengaluru-2026-10-31",
-      "register_url": "https://playo.co/activity?source=app&activityId=6ad36d3ff2673387f6b51528"
-    },
     {
       "id": "8e6274fc-42e4-45e0-a5e8-a2eb48312b39",
       "name": "Karunadu Cup 2026 - Kannada Rajyotsava Special",
@@ -38,10 +25,10 @@
       "end_date": "2026-11-15",
       "date_label": "15th November, 2026",
       "timing": "9:30 AM onwards",
-      "summary": "",
+      "summary": "Get ready for the Junior Badminton Tournament at Badminton J.AA Carnivals! Young players can showcase their badminton skills, compete against fellow players, and enjoy a day of sportsmanship and competition. Play, learn, grow, and take a...",
       "entry_fee": "",
       "url": "https://playo.co/experience-details/badminton-jaa-carnivals-junior-badminton-tournament-bengaluru-2026-11-15",
-      "register_url": null
+      "register_url": "https://playo.co/activity?source=app&activityId=6adc9e417ff0bc2931a43b4c"
     }
   ]
 }
