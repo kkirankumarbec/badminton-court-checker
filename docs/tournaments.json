@@ -1,22 +1,9 @@
 {
-  "fetched_at": "2026-10-30T17:45+05:30",
+  "fetched_at": "2026-11-01T17:15+05:30",
   "source": "Playo community events, Bengaluru",
   "source_url": "https://playo.co/experiences/bangalore/event/badminton",
-  "truncated": true,
+  "truncated": false,
   "events": [
-    {
-      "id": "8e6274fc-42e4-45e0-a5e8-a2eb48312b39",
-      "name": "Karunadu Cup 2026 - Kannada Rajyotsava Special",
-      "venue": "Krida Jagathu Sports Academy",
-      "date": "2026-11-01",
-      "end_date": "2026-11-01",
-      "date_label": "1st November 2026",
-      "timing": "9 AM Onwards",
-      "summary": "Get ready for an exciting badminton showdown at the Karunadu Cup 2026, presented by A1 Rallyon Sports & Events as a special celebration of Kannada Rajyotsava. The tournament features Beginner Doubles, Intermediate Doubles and Beginner...",
-      "entry_fee": "1. Beginner Doubles (Gender-Neutral)\nEligibility: Only known players\nEntry Fee: 899 per pair\n\n2. Intermediate Doubles (Gender-Neutral)\nEntry Fee: 899 per pair\n\n3. Beginner Singles (Gender-Neutral)\nEntry Fee: 499 per player",
-      "url": "https://playo.co/experience-details/karunadu-cup-2026-kannada-rajyotsava-special-bengaluru-2026-11-01",
-      "register_url": "https://playo.co/activity?source=app&activityId=6ad360200b385e764c6c3b1e"
-    },
     {
       "id": "c824eb82-ee4f-4171-a488-9c7d081610f8",
       "name": "Badminton J.AA Carnivals - Junior Badminton Tournament",
