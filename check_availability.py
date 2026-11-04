@@ -391,7 +391,7 @@ def render_html(groups, now, forecast=True):
   .rain-box.r1 {{ background: #e8f1fb; border-color: #4a86c7; color: #1f4f82; }}
   .rain-box.r2 {{ background: #dbe7f7; border-color: #1f5fa8; color: #123d70; }}
   .rain-tag {{
-    display: table; margin-top: 3px; padding: 1px 6px; border-radius: 6px;
+    display: block; width: fit-content; margin-top: 3px; padding: 1px 6px; border-radius: 6px;
     font-size: 0.72rem; font-weight: 600; white-space: nowrap;
   }}
   .rain-tag.r1 {{ background: #e8f1fb; color: #1f4f82; }}
