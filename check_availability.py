@@ -17,6 +17,13 @@ WEEKEND_HOURS = [8, 9]        # 8 AM, 9 AM slots - shown for Sat/Sun
 DAYS_AHEAD = 3                # show today + the next 2 days
 ALERT_THRESHOLD = 2           # courts remaining that triggers an alert
 
+VENUE_LAT = 12.852            # approximate, Doddathoguru area
+VENUE_LON = 77.664
+RAIN_CAUTION_PCT = 40         # % chance around a slot that shows "Rain possible"
+RAIN_LIKELY_PCT = 60          # % chance around a slot that shows "Rain likely"
+RAIN_HEAVY_MM = 2.5           # mm in an hour that counts as "Rain likely" at any %
+RAIN_ALERT_DAYS = 2           # email for today + tomorrow only
+
 GMAIL_ADDRESS = os.getenv("GMAIL_ADDRESS", "").strip()
 GMAIL_APP_PASSWORD = os.getenv("GMAIL_APP_PASSWORD", "").strip()
 
@@ -33,6 +40,12 @@ def parse_recipients(raw):
 # NOTIFY_EMAIL may hold several comma-separated addresses; the first is the owner.
 RECIPIENTS = (parse_recipients(os.getenv("NOTIFY_EMAIL", ""))
               or parse_recipients(GMAIL_ADDRESS))
+
+RAIN_LABELS = {0: "Low rain chance", 1: "Rain possible", 2: "Rain likely"}
+RAIN_ADVICE = {
+    1: "Check the sky before you book.",
+    2: "Think twice before booking, and leave early if you do.",
+}
 
 IST = timezone(timedelta(hours=5, minutes=30))
 BASE_DIR = os.path.dirname(__file__)
@@ -70,6 +83,103 @@ def fetch_availability(date_str):
     return data["data"]["courtInfo"]
 
 
+def fetch_rain_forecast():
+    """Return {"YYYY-MM-DD|hour": (chance %, mm)}, or None if the forecast failed.
+
+    Rain must never stop the court check, so every failure ends up as None.
+    """
+    try:
+        resp = requests.get(
+            "https://api.open-meteo.com/v1/forecast",
+            params={
+                "latitude": VENUE_LAT,
+                "longitude": VENUE_LON,
+                "hourly": "precipitation_probability,precipitation",
+                "timezone": "Asia/Kolkata",
+                "forecast_days": 7,
+            },
+            timeout=15,
+        )
+        resp.raise_for_status()
+        hourly = resp.json()["hourly"]
+        forecast = {}
+        for stamp, chance, mm in zip(hourly["time"], hourly["precipitation_probability"],
+                                     hourly["precipitation"]):
+            if chance is not None or mm is not None:
+                date_str, clock = stamp.split("T")
+                forecast[f"{date_str}|{int(clock[:2])}"] = (chance or 0, mm or 0)
+        if not forecast:
+            raise ValueError("forecast had no hourly data")
+        return forecast
+    except Exception as exc:
+        print(f"Rain forecast unavailable ({type(exc).__name__}) - continuing without it")
+        return None
+
+
+def slot_rain(forecast, date_str, hour):
+    """Worst rain from the hour before a slot to the hour after it.
+
+    Includes travel time: rain while getting there or going home matters as
+    much as rain during play. Returns None when there is no forecast data.
+    """
+    if forecast is None:
+        return None
+    points = [forecast[f"{date_str}|{h}"] for h in (hour - 1, hour, hour + 1)
+              if f"{date_str}|{h}" in forecast]
+    if not points:
+        return None
+    chance = max(p[0] for p in points)
+    mm = max(p[1] for p in points)
+    if chance >= RAIN_LIKELY_PCT or mm >= RAIN_HEAVY_MM:
+        level = 2
+    elif chance >= RAIN_CAUTION_PCT:
+        level = 1
+    else:
+        level = 0
+    return {"level": level, "chance": chance, "mm": mm}
+
+
+def add_rain(groups, forecast):
+    """Attach per-slot rain and the day's worst level to each group."""
+    for g in groups:
+        g["rain"] = {h: slot_rain(forecast, g["date_str"], h) for h in g["hourly"]}
+        known = [r for r in g["rain"].values() if r]
+        g["rain_level"] = max((r["level"] for r in known), default=0)
+        g["rain_hours"] = [h for h, r in g["rain"].items()
+                           if r and r["level"] == g["rain_level"]]
+
+
+def rain_slots_text(group):
+    """Join back-to-back slots: 7, 8 and 9 PM reads as "7:00 PM to 10:00 PM"."""
+    runs = []
+    for h in sorted(group["rain_hours"]):
+        if runs and runs[-1][1] == h:
+            runs[-1][1] = h + 1
+        else:
+            runs.append([h, h + 1])
+    return ", ".join(f"{fmt_hour(a)} to {fmt_hour(b)}" for a, b in runs)
+
+
+def rain_detail(group):
+    worst = max((group["rain"][h] for h in group["rain_hours"]), key=lambda r: r["chance"])
+    return f"{worst['chance']}% chance, up to {worst['mm']:g} mm in an hour"
+
+
+def newly_rainy_days(groups, state, now):
+    """Dates to email about. One email per date, and again only if it gets worse."""
+    today = now.date()
+    newly_rainy = []
+    for g in groups:
+        days_away = (datetime.strptime(g["date_str"], "%Y-%m-%d").date() - today).days
+        if days_away >= RAIN_ALERT_DAYS or g.get("rain_level", 0) < 1:
+            continue
+        key = f"{g['date_str']}|rain"
+        if g["rain_level"] > state.get(key, 0):
+            newly_rainy.append(g)
+            state[key] = g["rain_level"]
+    return newly_rainy
+
+
 def fmt_hour(hour):
     return datetime(2000, 1, 1, hour % 24).strftime("%I:%M %p").lstrip("0")
 
@@ -103,6 +213,8 @@ def build_group(label, date_label, date_str, hours):
 def group_text(group):
     lines = [
         f"  {fmt_hour(h)} - {fmt_hour(h + 1)}: {n} of {group['total']} courts free"
+        + (f" ({RAIN_LABELS[r['level']]}, {r['chance']}%)"
+           if (r := group.get("rain", {}).get(h)) and r["level"] else "")
         for h, n in group["hourly"].items()
     ]
     return f"{group['label']}:\n" + "\n".join(lines)
@@ -183,7 +295,7 @@ def newly_low_slots(groups, state, today_str):
     return newly_low, state
 
 
-def render_html(groups, now):
+def render_html(groups, now, forecast=True):
     def status_class(n, total):
         if n <= ALERT_THRESHOLD:
             return "low"
@@ -191,21 +303,37 @@ def render_html(groups, now):
             return "mid"
         return "ok"
 
+    def rain_tag(g, h):
+        r = g.get("rain", {}).get(h)
+        if not r or not r["level"]:
+            return ""
+        return f'<span class="rain-tag r{r["level"]}">Rain {r["chance"]}%</span>'
+
+    def rain_banner(g):
+        level = g.get("rain_level", 0)
+        if not level:
+            return ""
+        return (f'<div class="rain-box r{level}"><strong>{RAIN_LABELS[level]}</strong> '
+                f'around {rain_slots_text(g)}. {RAIN_ADVICE[level]}</div>')
+
     cards = []
     for g in groups:
         rows = "".join(
             f'<tr class="{status_class(n, g["total"])}" '
             f'data-start="{g["date_str"]}T{h:02d}:00:00+05:30">'
-            f'<td>{fmt_hour(h)} - {fmt_hour(h + 1)}</td>'
+            f'<td>{fmt_hour(h)} - {fmt_hour(h + 1)}{rain_tag(g, h)}</td>'
             f'<td>{n} of {g["total"]} free</td>'
             f"</tr>"
             for h, n in g["hourly"].items()
         )
         cards.append(
-            f'<section class="card"><h2>{g["label"]}</h2>'
+            f'<section class="card"><h2>{g["label"]}</h2>{rain_banner(g)}'
             f"<table>{rows}</table></section>"
         )
     body_html = "\n".join(cards)
+
+    rain_note = ("Rain forecast covers the hour before to the hour after each slot"
+                 if forecast is not None else "Rain forecast unavailable right now")
 
     updated = now.strftime("%A, %d %b %Y - %I:%M %p").replace(" 0", " ") + " IST"
 
@@ -236,6 +364,18 @@ def render_html(groups, now):
   tr.ok td:last-child {{ color: #1a7f37; }}
   tr.mid td:last-child {{ color: #b35900; }}
   tr.low td:last-child {{ color: #c62828; }}
+  .rain-box {{
+    font-size: 0.88rem; line-height: 1.4; padding: 10px 12px;
+    border-radius: 8px; margin: 0 0 10px; border-left: 4px solid;
+  }}
+  .rain-box.r1 {{ background: #e8f1fb; border-color: #4a86c7; color: #1f4f82; }}
+  .rain-box.r2 {{ background: #dbe7f7; border-color: #1f5fa8; color: #123d70; }}
+  .rain-tag {{
+    display: table; margin-top: 3px; padding: 1px 6px; border-radius: 6px;
+    font-size: 0.72rem; font-weight: 600; white-space: nowrap;
+  }}
+  .rain-tag.r1 {{ background: #e8f1fb; color: #1f4f82; }}
+  .rain-tag.r2 {{ background: #1f5fa8; color: #fff; }}
   .book {{
     display: block; text-align: center; background: #1a7f37; color: #fff;
     text-decoration: none; padding: 12px; border-radius: 10px;
@@ -260,6 +400,8 @@ def render_html(groups, now):
     .subtitle, footer {{ color: #999; }}
     .split, .dues, .tourn {{ background: #232427; }}
     .dues, .tourn {{ color: #ccc; border-color: #444; }}
+    .rain-box.r1, .rain-box.r2 {{ background: #1d2c3f; color: #cfe2f7; }}
+    .rain-tag.r1 {{ background: #1d2c3f; color: #cfe2f7; }}
   }}
 </style>
 </head>
@@ -274,6 +416,7 @@ def render_html(groups, now):
   <a class="tourn" href="tournaments.html">Tournaments this week</a>
   <footer>
     Last updated {updated}<br>
+    {rain_note}<br>
     Live - refreshes every 15 minutes via GitHub Actions
   </footer>
   <script>
@@ -294,18 +437,20 @@ def render_html(groups, now):
 """
 
 
-def write_page(groups, now):
+def write_page(groups, now, forecast):
     os.makedirs(os.path.dirname(PAGE_PATH), exist_ok=True)
     with open(PAGE_PATH, "w", encoding="utf-8") as f:
-        f.write(render_html(groups, now))
+        f.write(render_html(groups, now, forecast))
     print("Wrote", PAGE_PATH)
 
 
 def main():
     now = datetime.now(IST)
     groups = collect_groups(now)
+    forecast = fetch_rain_forecast()
+    add_rain(groups, forecast)
 
-    write_page(groups, now)
+    write_page(groups, now, forecast)
 
     report_body = (
         f"Court availability at {VENUE_NAME}:\n\n"
@@ -316,6 +461,7 @@ def main():
 
     state = load_state()
     newly_low, state = newly_low_slots(groups, state, now.strftime("%Y-%m-%d"))
+    newly_rainy = newly_rainy_days(groups, state, now)
     save_state(state)
 
     if newly_low:
@@ -328,6 +474,19 @@ def main():
         send_email(subject, body)
     else:
         print("No newly-low slots - no alert email sent.")
+
+    if newly_rainy:
+        lines = [
+            f"{RAIN_LABELS[g['rain_level']]} on {g['date_label']} around "
+            f"{rain_slots_text(g)} ({rain_detail(g)}). {RAIN_ADVICE[g['rain_level']]}"
+            for g in newly_rainy
+        ]
+        subject = f"[Rain Alert] {RAIN_LABELS[max(g['rain_level'] for g in newly_rainy)]} for badminton"
+        body = ("\n\n".join(lines) + "\n\nCovers the hour before to the hour after each slot, "
+                "so travel time is included.\nForecasts can be wrong, so check again before you leave.")
+        send_email(subject, body)
+    else:
+        print("No new rain alerts - no rain email sent.")
 
 
 def send_failure_alert(message):

@@ -54,6 +54,29 @@ crosses the threshold, and only alerted again if it recovers (books back
 up above 2) and later drops low again. This state is tracked in
 `alert_state.json`, which the workflow commits alongside the page.
 
+## Rain alerts
+
+Each run also fetches a free hourly forecast from
+[Open-Meteo](https://open-meteo.com) for the venue. It needs no key or login.
+
+For each slot it checks the **hour before, the slot itself, and the hour
+after**, so getting there and going home count too:
+
+- **Rain possible**: 40% chance or more.
+- **Rain likely**: 60% chance or more, or 2.5 mm or more in an hour.
+
+The page shows a blue box on that day's card and a tag on each affected slot.
+An email goes to everyone in `NOTIFY_EMAIL` for **today and tomorrow** only:
+once per date, and again only if the forecast gets worse (possible to likely).
+This is tracked in `alert_state.json` as `<date>|rain`.
+
+If the forecast can't be fetched, the court check and low-court alerts carry
+on as normal and the page footer says the forecast is unavailable. The
+forecast is for an approximate venue location, and it can be wrong.
+
+Change `RAIN_CAUTION_PCT`, `RAIN_LIKELY_PCT`, `RAIN_HEAVY_MM` or
+`RAIN_ALERT_DAYS` at the top of `check_availability.py` to adjust this.
+
 ## Shareable link
 
 Every run regenerates `docs/index.html` - a small mobile-friendly status
