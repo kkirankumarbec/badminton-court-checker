@@ -66,6 +66,8 @@ after**, so getting there and going home count too:
 - **Rain likely**: 60% chance or more, or 2.5 mm or more in an hour.
 
 The page shows a blue box on that day's card and a tag on each affected slot.
+When no rain is expected, a green box shows the sky instead, such as "Clear sky,
+no rain expected around 7:00 PM to 10:00 PM".
 An email goes to everyone in `NOTIFY_EMAIL` for **today and tomorrow** only:
 once per date, and again only if the forecast gets worse (possible to likely).
 This is tracked in `alert_state.json` as `<date>|rain`.

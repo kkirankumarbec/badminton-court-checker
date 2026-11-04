@@ -84,7 +84,7 @@ def fetch_availability(date_str):
 
 
 def fetch_rain_forecast():
-    """Return {"YYYY-MM-DD|hour": (chance %, mm)}, or None if the forecast failed.
+    """Return {"YYYY-MM-DD|hour": (chance %, mm, weather code)}, or None if the forecast failed.
 
     Rain must never stop the court check, so every failure ends up as None.
     """
@@ -94,7 +94,7 @@ def fetch_rain_forecast():
             params={
                 "latitude": VENUE_LAT,
                 "longitude": VENUE_LON,
-                "hourly": "precipitation_probability,precipitation",
+                "hourly": "precipitation_probability,precipitation,weather_code",
                 "timezone": "Asia/Kolkata",
                 "forecast_days": 7,
             },
@@ -103,11 +103,11 @@ def fetch_rain_forecast():
         resp.raise_for_status()
         hourly = resp.json()["hourly"]
         forecast = {}
-        for stamp, chance, mm in zip(hourly["time"], hourly["precipitation_probability"],
-                                     hourly["precipitation"]):
+        for stamp, chance, mm, code in zip(hourly["time"], hourly["precipitation_probability"],
+                                           hourly["precipitation"], hourly["weather_code"]):
             if chance is not None or mm is not None:
                 date_str, clock = stamp.split("T")
-                forecast[f"{date_str}|{int(clock[:2])}"] = (chance or 0, mm or 0)
+                forecast[f"{date_str}|{int(clock[:2])}"] = (chance or 0, mm or 0, code)
         if not forecast:
             raise ValueError("forecast had no hourly data")
         return forecast
@@ -130,13 +130,15 @@ def slot_rain(forecast, date_str, hour):
         return None
     chance = max(p[0] for p in points)
     mm = max(p[1] for p in points)
+    codes = [p[2] for p in points if p[2] is not None]
+    sky = max(codes) if codes else None  # higher codes are cloudier
     if chance >= RAIN_LIKELY_PCT or mm >= RAIN_HEAVY_MM:
         level = 2
     elif chance >= RAIN_CAUTION_PCT:
         level = 1
     else:
         level = 0
-    return {"level": level, "chance": chance, "mm": mm}
+    return {"level": level, "chance": chance, "mm": mm, "sky": sky}
 
 
 def add_rain(groups, forecast):
@@ -147,6 +149,20 @@ def add_rain(groups, forecast):
         g["rain_level"] = max((r["level"] for r in known), default=0)
         g["rain_hours"] = [h for h, r in g["rain"].items()
                            if r and r["level"] == g["rain_level"]]
+        skies = [r["sky"] for r in known if r["sky"] is not None]
+        g["sky"] = max(skies) if skies else None
+
+
+def sky_text(sky):
+    if sky is None:
+        return "No rain expected"
+    if sky <= 1:
+        return "Clear sky, no rain expected"
+    if sky == 2:
+        return "Partly cloudy, no rain expected"
+    if sky in (45, 48):
+        return "Foggy, no rain expected"
+    return "Cloudy, no rain expected"
 
 
 def rain_slots_text(group):
@@ -311,8 +327,11 @@ def render_html(groups, now, forecast=True):
 
     def rain_banner(g):
         level = g.get("rain_level", 0)
-        if not level:
+        if not g.get("rain_hours"):
             return ""
+        if not level:
+            return (f'<div class="rain-box r0"><strong>{sky_text(g["sky"])}</strong> '
+                    f'around {rain_slots_text(g)}.</div>')
         return (f'<div class="rain-box r{level}"><strong>{RAIN_LABELS[level]}</strong> '
                 f'around {rain_slots_text(g)}. {RAIN_ADVICE[level]}</div>')
 
@@ -368,6 +387,7 @@ def render_html(groups, now, forecast=True):
     font-size: 0.88rem; line-height: 1.4; padding: 10px 12px;
     border-radius: 8px; margin: 0 0 10px; border-left: 4px solid;
   }}
+  .rain-box.r0 {{ background: #e9f5ec; border-color: #1a7f37; color: #14572a; }}
   .rain-box.r1 {{ background: #e8f1fb; border-color: #4a86c7; color: #1f4f82; }}
   .rain-box.r2 {{ background: #dbe7f7; border-color: #1f5fa8; color: #123d70; }}
   .rain-tag {{
@@ -400,6 +420,7 @@ def render_html(groups, now, forecast=True):
     .subtitle, footer {{ color: #999; }}
     .split, .dues, .tourn {{ background: #232427; }}
     .dues, .tourn {{ color: #ccc; border-color: #444; }}
+    .rain-box.r0 {{ background: #1c2f23; color: #c9ecd3; }}
     .rain-box.r1, .rain-box.r2 {{ background: #1d2c3f; color: #cfe2f7; }}
     .rain-tag.r1 {{ background: #1d2c3f; color: #cfe2f7; }}
   }}
