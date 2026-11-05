@@ -1,5 +1,5 @@
 {
-  "fetched_at": "2026-11-03T16:45+05:30",
+  "fetched_at": "2026-11-05T16:15+05:30",
   "source": "Playo community events, Bengaluru",
   "source_url": "https://playo.co/experiences/bangalore/event/badminton",
   "truncated": false,
@@ -16,6 +16,32 @@
       "entry_fee": "",
       "url": "https://playo.co/experience-details/badminton-jaa-carnivals-junior-badminton-tournament-bengaluru-2026-11-15",
       "register_url": "https://playo.co/activity?source=app&activityId=6adc9e417ff0bc2931a43b4c"
+    },
+    {
+      "id": "9de024fd-fcce-41f0-bd90-23aa9d62cff3",
+      "name": "Mount Bird Sports Academy - Open Badminton Tournament (Season 1)",
+      "venue": "Mount Bird Sports Academy, Bidarehalli, Bangalore",
+      "date": "2026-11-15",
+      "end_date": "2026-11-15",
+      "date_label": "15th November 2026",
+      "timing": "8 AM - 6 PM",
+      "summary": "Get ready for an exciting badminton championship presented by Mount Bird Sports Academy! Participate in the Open Badminton Tournament (Season 1) and showcase your skills across men's, women's and mixed doubles categories. Compete for...",
+      "entry_fee": "Singles Categories:\nMen's Singles 600 per player\nWomen's Singles 600 per player\n\nDoubles Categories:\nMen's Doubles 800 per team\nWomen's Doubles 800 per team\nMixed Doubles 800 per team",
+      "url": "https://playo.co/experience-details/mount-bird-sports-academy-open-badminton-tournament-season-1-bengaluru-2026-11-15",
+      "register_url": null
+    },
+    {
+      "id": "12e73222-d13e-4095-bbba-4d326b7fad95",
+      "name": "Royal Smash Academy Badminton Tournament",
+      "venue": "G-Sports, Mahadevapura, Bengaluru",
+      "date": "2026-11-15",
+      "end_date": "2026-11-15",
+      "date_label": "15th November 2026",
+      "timing": "11 AM onwards",
+      "summary": "Get ready for an exciting badminton showdown hosted by Royal Smash Academy! Whether you're competing in singles or doubles, showcase your skills, challenge fellow players and compete for exciting cash prizes and trophies. Join us for a day...",
+      "entry_fee": "1. Men's Singles\nEntry Fee: 500 per player\n\n2. Men's Doubles\nEntry Fee: 1,000 per team\n\n3. Mixed Doubles\nEntry Fee: 1,000 per team",
+      "url": "https://playo.co/experience-details/royal-smash-academy-badminton-tournament-bengaluru-2026-11-15",
+      "register_url": null
     }
   ]
 }
