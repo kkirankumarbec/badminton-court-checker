@@ -1,5 +1,5 @@
 {
-  "fetched_at": "2026-11-05T16:15+05:30",
+  "fetched_at": "2026-11-07T15:45+05:30",
   "source": "Playo community events, Bengaluru",
   "source_url": "https://playo.co/experiences/bangalore/event/badminton",
   "truncated": false,
@@ -42,6 +42,19 @@
       "entry_fee": "1. Men's Singles\nEntry Fee: 500 per player\n\n2. Men's Doubles\nEntry Fee: 1,000 per team\n\n3. Mixed Doubles\nEntry Fee: 1,000 per team",
       "url": "https://playo.co/experience-details/royal-smash-academy-badminton-tournament-bengaluru-2026-11-15",
       "register_url": null
+    },
+    {
+      "id": "1dfcdee6-935c-4003-a24a-74b1f3338e10",
+      "name": "Aurora Shuttle Fest 4.0",
+      "venue": "Golden Fins Sports Club",
+      "date": "2026-12-12",
+      "end_date": "2026-12-12",
+      "date_label": "12th December, 2026",
+      "timing": "10 AM - 7 PM",
+      "summary": "Get ready for an exciting day of badminton, competition, and thrilling rallies at Aurora Shuttle Fest 4.0! Join fellow badminton enthusiasts across multiple skill-based categories and compete for exciting cash prizes and trophies. Whether...",
+      "entry_fee": "",
+      "url": "https://playo.co/experience-details/aurora-shuttle-fest-40-bengaluru-2026-12-12",
+      "register_url": "https://playo.co/activity?source=app&activityId=6aed6545aa793acc161ed3fb"
     }
   ]
 }
