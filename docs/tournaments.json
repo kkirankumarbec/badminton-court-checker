@@ -1,5 +1,5 @@
 {
-  "fetched_at": "2026-11-07T15:45+05:30",
+  "fetched_at": "2026-11-09T15:16+05:30",
   "source": "Playo community events, Bengaluru",
   "source_url": "https://playo.co/experiences/bangalore/event/badminton",
   "truncated": false,
@@ -42,6 +42,19 @@
       "entry_fee": "1. Men's Singles\nEntry Fee: 500 per player\n\n2. Men's Doubles\nEntry Fee: 1,000 per team\n\n3. Mixed Doubles\nEntry Fee: 1,000 per team",
       "url": "https://playo.co/experience-details/royal-smash-academy-badminton-tournament-bengaluru-2026-11-15",
       "register_url": null
+    },
+    {
+      "id": "6c2a0752-8cd4-44d6-85f3-0122973cb7ed",
+      "name": "Shuttle Smashers - Karnataka Open Junior Badminton Tournament 2026",
+      "venue": "Nagarbhavi Sports Arena",
+      "date": "2026-11-21",
+      "end_date": "2026-11-21",
+      "date_label": "21st November 2026",
+      "timing": "8 AM onwards",
+      "summary": "Get ready for an exciting badminton championship at the Karnataka Open Junior Badminton Tournament 2026, presented by Shuttle Smashers! This tournament brings together young badminton enthusiasts to showcase their skills, compete against...",
+      "entry_fee": "",
+      "url": "https://playo.co/experience-details/shuttle-smashers-karnataka-open-junior-badminton-tournament-2026-bengaluru-2026-11-21",
+      "register_url": "https://playo.co/activity?source=app&activityId=6aef10cc63d9c6611f7a3194"
     },
     {
       "id": "1dfcdee6-935c-4003-a24a-74b1f3338e10",
