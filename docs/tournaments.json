@@ -1,5 +1,5 @@
 {
-  "fetched_at": "2026-11-19T13:01+05:30",
+  "fetched_at": "2026-11-21T12:31+05:30",
   "source": "Playo community events, Bengaluru",
   "source_url": "https://playo.co/experiences/bangalore/event/badminton",
   "truncated": false,
@@ -29,6 +29,19 @@
       "entry_fee": "",
       "url": "https://playo.co/experience-details/pj-sports-badminton-tournament-2026-bengaluru-2026-11-29",
       "register_url": "https://playo.co/activity?source=app&activityId=6af71be65f42694cc3da7735"
+    },
+    {
+      "id": "61f7858c-8c49-4799-8013-0d3393f40b95",
+      "name": "SFL Badminton Tournament - Bengaluru",
+      "venue": "Orchid Sports Academy",
+      "date": "2026-11-29",
+      "end_date": "2026-11-29",
+      "date_label": "29th November 2026",
+      "timing": "10 AM onwards",
+      "summary": "Get ready for an action-packed day of badminton at the SFL Badminton Tournament, Bengaluru! Featuring Junior, Open and Veterans categories, the tournament offers players an opportunity to compete across multiple divisions and showcase...",
+      "entry_fee": "",
+      "url": "https://playo.co/experience-details/sfl-badminton-tournament-bengaluru-bengaluru-2026-11-29",
+      "register_url": "https://playo.co/activity?source=app&activityId=6afedd2d46fd0134fa9aec50"
     },
     {
       "id": "6e96a3ac-3dfd-4342-b636-e999debe1eae",
