@@ -1,22 +1,9 @@
 {
-  "fetched_at": "2026-11-21T12:31+05:30",
+  "fetched_at": "2026-11-23T12:01+05:30",
   "source": "Playo community events, Bengaluru",
   "source_url": "https://playo.co/experiences/bangalore/event/badminton",
   "truncated": false,
   "events": [
-    {
-      "id": "7bf5aa68-4530-4e9e-9930-bf51414aa29b",
-      "name": "Dinkster Pickleball Tournament - 21st November",
-      "venue": "Golden Leg",
-      "date": "2026-11-21",
-      "end_date": "2026-11-21",
-      "date_label": "21st November 2026",
-      "timing": "10 AM onwards",
-      "summary": "Get ready for an exciting day of competitive pickleball at the Dinkster Pickleball Tournament! Participate in Singles and Doubles categories across different DUPR rating levels and compete for cash prizes. Showcase your skills, challenge...",
-      "entry_fee": "",
-      "url": "https://playo.co/experience-details/dinkster-pickleball-tournament-21st-november-bengaluru-2026-11-21",
-      "register_url": "https://playo.co/activity?source=app&activityId=6af580d8bdb17e2969f229dc"
-    },
     {
       "id": "90cda57d-b587-4758-915f-3135c88ed275",
       "name": "PJ Sports Badminton Tournament 2026",
