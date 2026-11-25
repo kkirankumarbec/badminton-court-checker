@@ -1,5 +1,5 @@
 {
-  "fetched_at": "2026-11-23T12:01+05:30",
+  "fetched_at": "2026-11-25T11:31+05:30",
   "source": "Playo community events, Bengaluru",
   "source_url": "https://playo.co/experiences/bangalore/event/badminton",
   "truncated": false,
@@ -29,6 +29,19 @@
       "entry_fee": "",
       "url": "https://playo.co/experience-details/sfl-badminton-tournament-bengaluru-bengaluru-2026-11-29",
       "register_url": "https://playo.co/activity?source=app&activityId=6afedd2d46fd0134fa9aec50"
+    },
+    {
+      "id": "4345cfc3-48be-4371-9648-dddbdb2636c1",
+      "name": "Black Feather All India Junior's and Sub-Juniors Championship 2026",
+      "venue": "Streamline Sports India",
+      "date": "2026-12-05",
+      "end_date": "2026-12-06",
+      "date_label": "5th & 6th December 2026",
+      "timing": "",
+      "summary": "About the Event Black-Feather presents the All India Junior's and Sub-Juniors Championship 2026, celebrating its 2nd Year Anniversary. Taking place at Streamline Sports India in Ramamurthy Nagar, Bengaluru, on 5th & 6th December 2026, this...",
+      "entry_fee": "",
+      "url": "https://playo.co/experience-details/black-feather-all-india-juniors-and-sub-juniors-championship-2026-bengaluru-5th-6th-december-2026",
+      "register_url": null
     },
     {
       "id": "6e96a3ac-3dfd-4342-b636-e999debe1eae",
