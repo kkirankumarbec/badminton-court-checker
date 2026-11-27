@@ -1,9 +1,22 @@
 {
-  "fetched_at": "2026-11-25T11:31+05:30",
+  "fetched_at": "2026-11-27T11:01+05:30",
   "source": "Playo community events, Bengaluru",
   "source_url": "https://playo.co/experiences/bangalore/event/badminton",
   "truncated": false,
   "events": [
+    {
+      "id": "9ddbccd7-ef5d-431b-b8bf-045aaef28976",
+      "name": "Ace Smashfest 2026",
+      "venue": "Ace Sports Academy",
+      "date": "2026-11-28",
+      "end_date": "2026-11-28",
+      "date_label": "28th November 2026",
+      "timing": "",
+      "summary": "About the Event Ace Sports Academy presents Ace Smashfest 2026, a competitive badminton tournament designed exclusively for intermediate-level players. Scheduled for Saturday, 28th November 2026, at Ace Sports Academy in Kothanur...",
+      "entry_fee": "Men's Singles: Entry Fee 400 | Winner Prize 2,000 + Trophies\nMen's Doubles: Entry Fee 700 | Winner Prize 3,000 + Trophies\nWomen's Doubles: Entry Fee 600 | Winner Prize 2,000 + Trophies\nMixed Doubles: Entry Fee 700 | Winner Prize 3,000 + Trophies",
+      "url": "https://playo.co/experience-details/ace-smashfest-2026-bengaluru-2026-11-28",
+      "register_url": "https://playo.co/activity?source=app&activityId=6b06b2f4e80961a28b3ac73e"
+    },
     {
       "id": "90cda57d-b587-4758-915f-3135c88ed275",
       "name": "PJ Sports Badminton Tournament 2026",
@@ -70,6 +83,19 @@
       "register_url": "https://playo.co/activity?source=app&activityId=6af4827ff66c4ea12f639b29"
     },
     {
+      "id": "254f5e9f-1b75-4147-8d70-edd9293583ca",
+      "name": "2026 SNN Raj Greenbay Badminton Championship",
+      "venue": "SNN Raj Greenbay",
+      "date": "2026-12-12",
+      "end_date": "2026-12-13",
+      "date_label": "12th - 13th December 2026",
+      "timing": "7 AM onwards",
+      "summary": "Get ready for the 2026 SNN Raj Greenbay Badminton Championship! Step onto the court, showcase your badminton skills, and compete with fellow residents across junior, women's, and men's categories. Enjoy two days of exciting matches...",
+      "entry_fee": "",
+      "url": "https://playo.co/experience-details/2026-snn-raj-greenbay-badminton-championship-bengaluru-12th-13th-december-2026",
+      "register_url": null
+    },
+    {
       "id": "1dfcdee6-935c-4003-a24a-74b1f3338e10",
       "name": "Aurora Shuttle Fest 4.0",
       "venue": "Golden Fins Sports Club",
@@ -81,6 +107,32 @@
       "entry_fee": "",
       "url": "https://playo.co/experience-details/aurora-shuttle-fest-40-bengaluru-2026-12-12",
       "register_url": "https://playo.co/activity?source=app&activityId=6aed6545aa793acc161ed3fb"
+    },
+    {
+      "id": "e04761b2-793c-4e77-9fd5-cf270928a4ea",
+      "name": "Golden Masters Badminton Tournament 2026",
+      "venue": "Spark7 Sports Arena, Bagalur Main Road, Munneshwara Block, Kattigenahalli, Bengaluru, Karnataka, India",
+      "date": "2026-12-12",
+      "end_date": "2026-12-13",
+      "date_label": "12th & 13th December 2026",
+      "timing": "8 AM onwards",
+      "summary": "Get ready for the Golden Masters Badminton Tournament 2026, featuring men's and women's categories across age groups from 35+ to 75+. Compete in singles and doubles events, with cash prizes, trophies, and medals up for grabs. Participants...",
+      "entry_fee": "Men's & Women's Singles and Doubles\n- 35+ Men/Women\n- 40+ Men/Women\n- 45+ Men/Women\n- 50+ Men/Women\n- 55+ Men/Women\n- 60+ Men/Women\n- 65+ Men/Women\n- 70+ Men/Women\n- 75+ Men\n\nEntry Fees:\n- Singles: 1,300\n- Doubles: 2,600 (Men's Doubles / Women's Doubles / Mixed Doubles)\n\nJumbled Doubles Categories:\n- JD+100 MD/XD Minimum combined age 100 years (minimum age 45 years)...",
+      "url": "https://playo.co/experience-details/golden-masters-badminton-tournament-2026-bengaluru-12th-13th-december-2026",
+      "register_url": null
+    },
+    {
+      "id": "55c6cef4-0ab0-4782-8cf9-ef12d6ce596f",
+      "name": "Aspirepro Foundation Doubles Badminton Tournament",
+      "venue": "AspirePro Badminton Center, Begur - Hulimavu Road, Raghavendra Layout, Someshwara Layout, Hulimavu, Bengaluru...",
+      "date": "2026-12-13",
+      "end_date": "2026-12-13",
+      "date_label": "13th December 2026",
+      "timing": "9 AM - 6 PM",
+      "summary": "Get ready for an exciting doubles badminton tournament at Aspirepro Badminton Center! Compete across Men's Doubles, Women's Doubles, and Mixed Doubles categories in a League-cum-Knockout format. Winners and runners-up will receive cash...",
+      "entry_fee": "",
+      "url": "https://playo.co/experience-details/aspirepro-foundation-doubles-badminton-tournament-bengaluru-2026-12-13",
+      "register_url": null
     }
   ]
 }
